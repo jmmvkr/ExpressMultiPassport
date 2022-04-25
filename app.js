@@ -1,5 +1,6 @@
 const express = require('express');
 const ejs = require('ejs');
+const Site = require('./routes/site.js');
 
 
 // init express app
@@ -17,13 +18,9 @@ var config = {
     port: process.env.PORT || 9000,
 }
 
-// show index page
-app.get('/', function (req, res, next) {
-    res.render('index.ejs');
-});
-
-// serve static content
-app.use('/', express.static('views'));
+// initialize a Site
+var site = Site.makeOne(app, config);
+app.use('/', site.router);
 
 // run server
 var port = config.port;

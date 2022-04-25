@@ -18,7 +18,7 @@ var config = {
     port: process.env.PORT || 9000,
 }
 
-// initialize a Site
+// initialize and use a Site
 var site = Site.makeOne(app, config);
 app.use('/', site.router);
 

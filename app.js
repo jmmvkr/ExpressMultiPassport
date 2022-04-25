@@ -1,8 +1,10 @@
 const express = require('express');
+const ejs = require('ejs');
 
 
 // init express app
 var app = express();
+app.engine('ejs', ejs.renderFile);
 
 // enable development config
 if ('development' === app.get('env')) {
@@ -15,10 +17,13 @@ var config = {
     port: process.env.PORT || 9000,
 }
 
-// show hello world in Express.js
-app.use('/', function(req, res, next) {
-    res.send('hello world');
+// show index page
+app.get('/', function (req, res, next) {
+    res.render('index.ejs');
 });
+
+// serve static content
+app.use('/', express.static('views'));
 
 // run server
 var port = config.port;

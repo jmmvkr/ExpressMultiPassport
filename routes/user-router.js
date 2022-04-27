@@ -41,7 +41,7 @@ class UserRouter {
         var router = this.router;
         var site = this.site;
         var account = site.account;
-        
+
         // serve dashboard
         router.get('/dashboard', site.securePage, async function (req, res, next) {
 
@@ -66,6 +66,12 @@ class UserRouter {
         router.get('/list', site.secureApi, async function (req, res, next) {
             var userList = await account.getUserList();
             res.json(userList);
+        });
+
+        // serve user statistics
+        router.get('/statistics', site.secureApi, async function (req, res, next) {
+            var userStatistics = await account.getUserStatistics();
+            res.json(userStatistics);
         });
     }
 

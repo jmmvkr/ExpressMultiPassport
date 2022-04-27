@@ -41,6 +41,14 @@ class Global { }
  */
 
 /**
+ * User statistics information for management purpose.
+ * @typedef {object} UserStatistics
+ * @property {number} totalCount - Number of signed up users.
+ * @property {number} todayActive - Number of active users today.
+ * @property {number} weeklyAverage - Average number of active users this week.
+ */
+
+/**
  * A namespace for routes.
  * @namespace routes
  */

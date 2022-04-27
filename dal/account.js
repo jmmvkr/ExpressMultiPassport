@@ -30,6 +30,10 @@ class Account extends DbAccess {
     /**
      * Get user statistics information at this moment.
      * @returns {UserStatistics} - user statistics information.
+     * @see UserStatistics
+     * @see #countTotalSignedUp
+     * @see #countTodayActive
+     * @see #countWeeklyAverage
      */
     async getUserStatistics() {
         var totalCount = await this.countTotalSignedUp();

@@ -26,13 +26,13 @@ class Global { }
 /**
  * An HTTP request in Express.js
  * @see {@link https://expressjs.com/en/4x/api.html#req|Express.js Request}
- * @typedef {object} Request
+ * @typedef {Object} Request
  */
 
 /**
  * An HTTP response in Express.js
  * @see {@link https://expressjs.com/en/4x/api.html#res|Express.js Response}
- * @typedef {object} Response
+ * @typedef {Object} Response
  */
 
 /**
@@ -42,7 +42,7 @@ class Global { }
 
 /**
  * User statistics information for management purpose.
- * @typedef {object} UserStatistics
+ * @typedef {Object} UserStatistics
  * @property {number} totalCount - Number of signed up users.
  * @property {number} todayActive - Number of active users today.
  * @property {number} weeklyAverage - Average number of active users this week.

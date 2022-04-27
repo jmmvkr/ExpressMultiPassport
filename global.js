@@ -49,3 +49,8 @@ class Global { }
 * A namespace for DAL (Data Access Level) classes.
 * @namespace dal
 */
+
+/**
+ * A namespace for utility classes.
+ * @namespace util
+ */

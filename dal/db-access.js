@@ -25,7 +25,7 @@ class DbAccess {
      * @protected
      * @returns {PrismaClient} - created or shared database client instance.
      */
-     getDbClient() {
+    getDbClient() {
         var prisma = global.prisma;
         return prisma;
     }

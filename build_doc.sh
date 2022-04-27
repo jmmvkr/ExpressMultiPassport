@@ -1,1 +1,1 @@
-npx jsdoc -r routes ./*.js --destination ./jsdoc
+npx jsdoc -r routes dal ./*.js --destination ./jsdoc

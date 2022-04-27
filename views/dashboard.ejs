@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- [page style] -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/f/css/common.css">
+  <!-- [oauth util] -->
+  <script src="/f/js/oauth.js"></script>
+</head>
+
+<body class="login-bg">
+
+<header>
+
+<nav class="navbar navbar-inverse navbar-fixed-top" style="border-radius:0">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Jivik's Site on Cloud</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/">Home</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/user/dashboard">Dashboard</a></li>
+                <li><a href="/user/profile">Profile</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+
+</header>
+
+
+<div class="container page-layout">
+	<div class="row login-block">
+		<div class="col-sm-2"></div>
+		<div class="col-sm-8 card-like">
+
+			<div class="btn-right">
+				<form action="/signout" method="GET">
+					<input type="submit" class="btn-round btn-signout" value="Logout" />
+				</form>
+			</div>
+			
+			<h3>Dashboard</h3>
+			<div class="gap"></div>
+
+<% if(locals.isVerified) { %>
+			<div>
+				<span class="user-count">
+					<span class="user-total"></span>
+					<span class="user-today"></span>
+					<span class="user-weekly"></span>
+				</span>
+				<h4>User List</h4>
+			</div>
+			
+			<hr />
+			<table class="user-list">
+				<tbody class="user-list-body">
+					<tr><th class="uid first-col">ID</th><th>Nickname</th><th>E-mail</th><th>Sign Up</th><th>Logins</th><th>Last Session</th><th>Sessions</th></tr>
+				</tbody>
+			</table>
+			
+			<script>
+			function updateUserList() {
+				getJson('/user/list', function (text) {
+					var arr = JSON.parse(text);
+					
+					var i;
+					var len = arr.length;
+					var tableArea = document.querySelector('.user-list-body');
+					for(i = 0; i < len; i++) {
+						var item = arr[i];
+						var uid = item.id;
+						var nickname = item.nickname;
+						var email = item.email;
+						var created = item.created;
+						var loginCount = item.login_count;
+						var session = item.session;
+						var sessionCount = item.session_count;
+						tableArea.innerHTML += `<td class="uid">${uid}</td><td>${nickname}</td><td>${email}</td><td>${created}</td><td>${loginCount}</td><td>${session}</td><td>${sessionCount}</td>`;
+					}
+				});
+				getJson('/user/statistics', function (text) {
+					var statistics = JSON.parse(text);
+					var countArea = document.querySelector('.user-total');
+					var todayArea = document.querySelector('.user-today');
+					var weeklyArea = document.querySelector('.user-weekly');
+					var avg = statistics.weeklyAverage;
+					var floatBase = 0.01;
+					avg = floatBase * Math.ceil(avg / floatBase);
+					countArea.innerHTML = `Total: ${statistics.totalCount} users`;
+					todayArea.innerHTML = `Today: ${statistics.todayActive} users`;
+					weeklyArea.innerHTML = `Weekly Average: ${avg} users`;
+				});
+			}
+			updateUserList();
+			</script>
+<% } else { %>
+			<div>
+				<h4>E-mail Verification</h4>
+			</div>
+
+			<hr />
+			<form action="/user/send-verify-email" method="POST" >
+			In order to use Dashboard, you must verify your e-mail.<br /><br />
+			Press &nbsp;<input type="submit" value="Resend Email Verification" />&nbsp; if miss the previous verification mail.
+			</form>
+<% } %>
+			
+			<div class="gap"></div>
+			<div class="gap"></div>
+			<div class="gap"></div>
+		</div>
+		<div class="col-sm-2"></div>
+	</div>
+</div>
+
+<div style="display: none">
+	<div class="g-signin2" data-onsuccess="onGoogleSignIn"></div>
+</div>
+
+</body>
+
+<html>

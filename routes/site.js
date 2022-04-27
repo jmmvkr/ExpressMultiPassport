@@ -1,6 +1,10 @@
 const express = require("express");
 
 
+const Account = require("../dal/account.js");
+const UserRouter = require("./user-router.js");
+
+
 /**
  * Site level management utility for a Express.js site.
  * @memberof routes#
@@ -33,13 +37,27 @@ class Site {
      * <a href="#.makeOne">Site.makeOne()</a></p>
      * 
      * @see #.makeOne
+     * @see #secureApi
+     * @see #securePage
      * @param {Object} app - The express app instance
      * @param {Object} config - Site config, that is, a set of options to be applied to created site instance
      */
     constructor(app, config) {
+
+        /** Express.js router of this site. */
         this.router = new express.Router();
+
+        /** Express.js app instance, stored for future use (e.g. add middlewares). */
         this.app = app;
+
+        /** Config object of this site. */
         this.config = config;
+
+        /** 
+         * Account manager instance of this site.
+         * @see Account
+         */
+        this.account = Account.makeOne();
     }
 
     /**
@@ -54,6 +72,28 @@ class Site {
     }
 
     /**
+     * A site-level middleware for secure page that need user login.
+     * 
+     * @param {Request} req - The HTTP request
+     * @param {Response} res - The HTTP response
+     * @param {NextCallback} next - Callback of next Express.js middleware
+     */
+    securePage(req, res, next) {
+        return next();
+    }
+
+    /**
+     * A site-level middleware for secure API that need user login.
+     * 
+     * @param {Request} req - The HTTP request
+     * @param {Response} res - The HTTP response
+     * @param {NextCallback} next - Callback of next Express.js middleware
+     */
+    secureApi(req, res, next) {
+        return next();
+    }
+
+    /**
      * Add middlewares to express app.
      */
     addMiddlewares() {
@@ -63,12 +103,16 @@ class Site {
      * Add routes to root router of this site.
      */
     addRoutes() {
+        var site = this;
         var router = this.router;
 
         // show index page
         router.get('/', function (req, res, next) {
             res.render('index.ejs');
         });
+
+        // serve user list & profile
+        router.use('/user', UserRouter.makeOne(site));
 
         // serve static content
         router.use('/', express.static('views'));

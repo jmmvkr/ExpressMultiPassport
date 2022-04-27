@@ -5,6 +5,7 @@ const client_1 = require('@prisma/client');
  * Base class of all DAL (Data Access Level) classes. Common 
  * database access function can be placed here.
  * 
+ * @memberof dal#
  * @hideconstructor
  */
 class DbAccess {

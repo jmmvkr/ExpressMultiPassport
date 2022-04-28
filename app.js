@@ -16,6 +16,13 @@ if ('development' === app.get('env')) {
 // prepare app config
 var config = {
     port: process.env.PORT || 9000,
+    sessionOptions: {
+        name: 'sess',
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {}
+    },
 }
 
 // initialize and use a Site

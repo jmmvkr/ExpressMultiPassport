@@ -1,5 +1,12 @@
+const crypto = require('crypto');
+
 const DbAccess = require('./db-access.js');
 const TimeUtil = require('../util/time-util.js');
+
+// constants for hash function
+const SCRYPT_SALT_LENGTH = 64;
+const SCRYPT_KEY_LENGTH = 128;
+const SCRYPT_OPTIONS = { N: 1024 };
 
 
 /**
@@ -118,6 +125,59 @@ class Account extends DbAccess {
         return weekAverage;
     }
 
+    /**
+     * Sign up a user that sign in by password
+     * 
+     * @param {string} email - Email address of user
+     * @param {string} password - Password given from user
+     * @param {string} nickname - Initial nickname extracted from email
+     * @returns {number} - number of record inserted by this sign up operation (normally 0 if failed, and 1 if succeed)
+     */
+    async emailSignUp(email, password, nickname) {
+        var verified = false;
+        var prisma = this.getDbClient();
+        var oldUserList = await this.findUsersByEmail(email);
+        if (DbAccess.hasData(oldUserList)) {
+            throw new Error('E-mail was already used');
+        }
+        var hash = null;
+        if (password) {
+            hash = Account.makeHash(password);
+        } else {
+            hash = 'x';
+        }
+        var now = await DbAccess.getDbNow(prisma);
+        var data = {
+            nickname,
+            email,
+            password: hash,
+            created: now,
+            login_count: 0,
+            session_count: 0,
+            session: null,
+            verified
+        };
+        var result = await prisma.account.createMany({ data });
+        return DbAccess.getUpdateCount(result);
+    }
+
+    /**
+     * Make a hash record from given rawString, with a random-generated salt.
+     * Generated hash record was defined by 
+     * <pre>
+     * <strong>hashRecord := hashFunction(rawString)|salt</strong>
+     * </pre>
+     * in hex format. In current implementation, <strong>scrypt</strong> was chosen as the <strong>hashFunction</strong>.
+     * 
+     * @param {string} rawString - Given raw string to generate a hash record.
+     * @returns {string} - a generated hash record.
+     */
+    static makeHash(rawString) {
+        const salt = crypto.randomBytes(SCRYPT_SALT_LENGTH);
+        const cypher = crypto.scryptSync(rawString, salt, SCRYPT_KEY_LENGTH, SCRYPT_OPTIONS);
+        const full = cypher.toString('hex') + salt.toString('hex');
+        return full;
+    }
 
     /**
      * Create an initialized Account instance.

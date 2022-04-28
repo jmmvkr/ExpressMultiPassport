@@ -7,6 +7,11 @@ const TimeUtil = require('../util/time-util.js');
 const SCRYPT_SALT_LENGTH = 64;
 const SCRYPT_KEY_LENGTH = 128;
 const SCRYPT_OPTIONS = { N: 1024 };
+const SCRYPT_SALT_IN_STRING = (2 * SCRYPT_KEY_LENGTH);
+
+// constants session update
+const UPDATE_SESSION_ONLY = 'UPDATE account SET session_count = 1 + session_count, session = NOW() where email = $1;';
+const UPDATE_SESSION_LOGIN = 'UPDATE account SET session_count = 1 + session_count, session = NOW(), login_count = 1 + login_count where email = $1;';
 
 
 /**
@@ -126,10 +131,29 @@ class Account extends DbAccess {
     }
 
     /**
-     * Sign up a user that sign in by password
+     * Sign in a user by email & password
+     * 
+     * @param {string} email - Email address of user 
+     * @param {string} password - Password from user
+     * @returns {boolean} - true if sign in succeed
+     */
+    async emailSignIn(email, password) {
+        var oldUserList = await this.findUsersByEmail(email);
+        var row;
+        var isValidHash;
+        if (1 === oldUserList.length) {
+            row = oldUserList[0];
+            isValidHash = Account.checkHash(password, row.password);
+            return isValidHash;
+        }
+        return false;
+    }
+
+    /**
+     * Sign up a user that sign in by email & password
      * 
      * @param {string} email - Email address of user
-     * @param {string} password - Password given from user
+     * @param {string} password - Password from user
      * @param {string} nickname - Initial nickname extracted from email
      * @returns {number} - number of record inserted by this sign up operation (normally 0 if failed, and 1 if succeed)
      */
@@ -162,7 +186,27 @@ class Account extends DbAccess {
     }
 
     /**
-     * Make a hash record from given rawString, with a random-generated salt.
+     * Update login count & session time. Do not add login count when it's a restored login (true === isRestored).
+     * @param {string} email - Email address of a user.
+     * @param {boolean} isRestored - This session update is a login restored by cookie or not.
+     * @returns {boolean} - always true
+     */
+    async updateSession(email, isRestored) {
+        var oldUserList = await this.findUsersByEmail(email);
+        var prisma;
+        if (1 === oldUserList.length) {
+            prisma = this.getDbClient();
+            if (isRestored) {
+                await prisma.$queryRawUnsafe(UPDATE_SESSION_ONLY, email);
+            } else {
+                await prisma.$queryRawUnsafe(UPDATE_SESSION_LOGIN, email);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Make a hash record from given rawString (often password), with a random-generated salt.
      * Generated hash record was defined by 
      * <pre>
      * <strong>hashRecord := hashFunction(rawString)|salt</strong>
@@ -177,6 +221,25 @@ class Account extends DbAccess {
         const cypher = crypto.scryptSync(rawString, salt, SCRYPT_KEY_LENGTH, SCRYPT_OPTIONS);
         const full = cypher.toString('hex') + salt.toString('hex');
         return full;
+    }
+
+    /**
+     * Check hash record calculated from rawString (often password) and previous random salt match the hash record.
+     * @param {string} rawString - Given raw string to be checked with hash record.
+     * @param {string} fullRecord - Full hash record stored in database.
+     * @returns {boolean} - true if given raw string matches hash record. 
+     */
+    static checkHash(rawString, fullRecord) {
+        const hexSalt = fullRecord.substring(SCRYPT_SALT_IN_STRING);
+        const salt = Buffer.from(hexSalt, 'hex');
+        const cypher = crypto.scryptSync(rawString, salt, SCRYPT_KEY_LENGTH, SCRYPT_OPTIONS);
+        const hexCypher = cypher.toString('hex');
+        if ((hexSalt.length + hexCypher.length) === fullRecord.length) {
+            if (fullRecord.startsWith(hexCypher) && fullRecord.endsWith(hexSalt)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

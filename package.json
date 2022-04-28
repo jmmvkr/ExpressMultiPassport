@@ -19,9 +19,12 @@
   "homepage": "https://github.com/jmmvkr/ExpressMultiPassport#readme",
   "dependencies": {
     "@prisma/client": "^3.11.1",
+    "cookie-parser": "^1.4.6",
     "ejs": "^3.0.2",
     "express": "^4.17.3",
     "express-session": "^1.17.2",
+    "passport": "^0.5.2",
+    "passport-local": "^1.0.0",
     "prisma": "^3.11.1"
   },
   "devDependencies": {

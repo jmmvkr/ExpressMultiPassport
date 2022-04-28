@@ -23,6 +23,13 @@ var config = {
         saveUninitialized: false,
         cookie: {}
     },
+    cookieOptions: {
+        secret: process.env.COOKIE_SECRET
+    },
+    passportOptions: {
+        usernameField: 'emailAddr',
+        passwordField: 'password'
+    },
 }
 
 // initialize and use a Site

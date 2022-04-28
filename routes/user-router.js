@@ -44,7 +44,6 @@ class UserRouter {
 
         // serve dashboard
         router.get('/dashboard', site.securePage, async function (req, res, next) {
-
             var email = '';
             if (req.user) {
                 email = req.user.email;
@@ -59,6 +58,22 @@ class UserRouter {
             }
 
             res.render('dashboard.ejs', { isVerified });
+        });
+        
+        // serve user profile
+        router.get('/profile', site.securePage, async function (req, res, next) {
+            var email = '';
+            if (req.user) {
+                email = req.user.email;
+            }
+            var userList = await account.findUsersByEmail(email);
+            var user;
+            var nickname = null;
+            if (1 === userList.length) {
+                user = userList[0];
+                nickname = user.nickname;
+            }
+            res.render('profile.ejs', { nickname, email });
         });
 
         // serve user list

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- [page style] -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/f/css/common.css">
+  <!-- [oauth util] -->
+  <script src="/f/js/oauth.js"></script>
+  <!-- [oauth google] -->
+  <meta name="google-signin-client_id" content="672439280126-ni7h4cplqqf4m9mt1dkr87q1i3578jlo.apps.googleusercontent.com">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+</head>
+
+<body class="login-bg">
+
+<header>
+
+<nav class="navbar navbar-inverse navbar-fixed-top" style="border-radius:0">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Jivik's Site on Cloud</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/">Home</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/user/dashboard">Dashboard</a></li>
+                <li><a href="/user/profile">Profile</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+
+</header>
+
+
+<div class="container page-layout">
+	<div class="row login-block">
+		<div class="col-sm-2"></div>
+		<div class="col-sm-8 card-like">
+
+			<div class="btn-right">
+				<form action="/signout" method="GET">
+					<input type="submit" class="btn-round btn-signout" value="Logout" />
+<% if(locals.authProvider) { %>
+					<div class="logout-block">
+						<input type="checkbox" id="federated" name="federated" />
+						<label>Logout social network</label>
+					</div>
+<% } %>
+				</form>
+			</div>
+
+			<h3>Profile</h3>
+			<div class="gap"></div>
+			<div class="gap"></div>
+			
+			<div>
+				<span class="user-hello">
+				</span>
+			</div>
+			
+			<hr />
+			<div>
+			</div>
+			<form action="/user/profile" method="POST" onsubmit="return true;">
+				<table class="user-input">
+					<tbody>
+						<tr>
+							<th class="first-col">E-mail</th>
+							<td>
+								<input class="full-width email" id="email" name="email" type="text" readonly="readonly" />
+							</td>
+						</tr>
+						<tr><td class="user-input-gap"></td></tr>
+						<tr>
+							<th>Nickname</th>
+							<td>
+								<input class="full-width nickname" id="nickname" name="nickname" type="text" onchange="onNicknameChange(this)" onkeyup="onNicknameChange(this)" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				
+				<div class="gap"></div>
+				<div class="gap"></div>
+
+				<div class="gap"></div>
+				<div class="gap"></div>
+				<div class="gap"></div>
+				<div class="gap"></div>
+				<div class="gap"></div>
+				<div class="gap"></div>
+
+				<input type="submit" class="btn-round btn-update box-hidden" value="Update" />
+			</form>
+			<div class="gap"></div>
+		</div>
+		<div class="col-sm-2"></div>
+		
+		<script>
+<% if(locals.email) { %>
+		var email = "<%= email %>";
+		var nickname = "<%= nickname %>";
+
+		document.querySelector('.email').value = email;
+		document.querySelector('.nickname').value = nickname;
+<% } %>
+		function onNicknameChange(ele) {
+			var text = ele.value;
+			var canUpdate = (text && (nickname != text));
+			showUiCell('.btn-update', canUpdate);
+		}
+		
+		</script>
+				
+
+	</div>
+</div>
+
+<div style="display: none">
+	<div class="g-signin2" data-onsuccess="onGoogleSignIn"></div>
+</div>
+
+</body>
+
+<html>

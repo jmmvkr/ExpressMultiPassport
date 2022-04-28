@@ -58,7 +58,6 @@ class UserRouter {
                 isVerified = user.verified;
             }
 
-            isVerified = false;
             res.render('dashboard.ejs', { isVerified });
         });
 

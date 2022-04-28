@@ -16,8 +16,10 @@ const RESTORED_LOGIN = 'x';
 const LOCAL_LOGIN = 'local';
 
 // input check constants
+const ERROR_LOGIN_FAILED = new Error('Incorrect E-mail or Password');
 const ERROR_INVALID_EMAIL = new Error('Invalid E-mail');
 const ERROR_NO_EMAIL = new Error('Please input E-mail');
+const ERROR_NO_PASSWORD = new Error('Please input Password');
 const RX_EMAIL = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{1,3})+$/;
 
 // cookie policy constants
@@ -119,25 +121,34 @@ class Site {
     }
 
     /**
-     * A site-level middleware for secure page that need user login.
+     * A site-level middleware for secure page that need user login. <br />
+     * A cookie value named 'lastPage' will be stored to keep user in the same page.
      * 
      * @param {Request} req - The HTTP request
      * @param {Response} res - The HTTP response
      * @param {NextCallback} next - Callback of next Express.js middleware
      */
     securePage(req, res, next) {
-        return next();
+        res.cookie('lastPage', req.originalUrl);
+        if (req.isAuthenticated()) {
+            return next();
+        }
+        return res.redirect('/signin');
     }
 
     /**
-     * A site-level middleware for secure API that need user login.
+     * A site-level middleware for secure API that need user login. <br />
+     * A cookie value named 'lastPage' will NOT be stored, because JSON is not friendly for normal user.
      * 
      * @param {Request} req - The HTTP request
      * @param {Response} res - The HTTP response
      * @param {NextCallback} next - Callback of next Express.js middleware
      */
     secureApi(req, res, next) {
-        return next();
+        if (req.isAuthenticated()) {
+            return next();
+        }
+        return res.json({});
     }
 
     /**

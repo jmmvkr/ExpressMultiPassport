@@ -184,6 +184,16 @@ class Site {
             res.render('index.ejs');
         });
 
+        // serve sign-out
+        router.get('/signout', function (req, res, next) {
+            Site.signRestoreUser(res, '', '');
+            req.logout();
+            req.session.destroy();
+
+            res.clearCookie('user').redirect('/');
+            return next();
+        });
+
         // serve sign-in
         router.get('/signin', function (req, res) {
             site.renderSignIn(req, res);

@@ -4,7 +4,7 @@ const Site = require('./routes/site.js');
 
 
 // init express app
-var app = express();
+const app = express();
 app.engine('ejs', ejs.renderFile);
 
 // enable development config
@@ -33,11 +33,11 @@ var config = {
 }
 
 // initialize and use a Site
-var site = Site.makeOne(app, config);
+const site = Site.makeOne(app, config);
 app.use('/', site.router);
 
 // run server
-var port = config.port;
+const port = config.port;
 app.listen(port, () => {
     console.log(`app started on port ${port}`);
 });

@@ -45,14 +45,14 @@ const RESTORE_COOKIE_POLICY = {
  * const Site = require('./routes/site.js');
  * 
  * // init express app
- * var app = express();
+ * const app = express();
  * 
- * var config = {
+ * const config = {
  *     // options for site instance
  * };
  * 
  * // initialize and use a Site
- * var site = Site.makeOne(app, config);
+ * const site = Site.makeOne(app, config);
  * app.use(site.router);
  * 
  * </code>

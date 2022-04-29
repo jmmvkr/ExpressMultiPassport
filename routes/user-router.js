@@ -12,7 +12,7 @@ const express = require("express");
  * const UserRouter = require("./user-router.js");
  * 
  * // in Site.addRoutes() or SomeRouter.addRoutes()
- * var router = this.router;
+ * const router = this.router;
  * router.use('/user', UserRouter.makeOne(site));
  * 
  * </code>

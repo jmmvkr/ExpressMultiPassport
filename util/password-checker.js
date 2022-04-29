@@ -37,8 +37,8 @@ const InvalidPassword = {
  * @tutorial [Usage]
  * <pre>
  * <code class='prettyprint'>
- * var options = { enableSampleMessage: true };
- * var passwordChecker = new PasswordChecker(options);
+ * const options = { enableSampleMessage: true };
+ * const passwordChecker = new PasswordChecker(options);
  * 
  * console.log('----\r\n', passwordChecker.checkPassword('aW5+tes'));
  * console.log('----\r\n', passwordChecker.checkPassword('aW5+test'));

@@ -55,7 +55,7 @@ class PasswordChecker {
  * @param {Object} options - Options to be applied to created instance
  */
 constructor(options) {
-	var instanceOptions = options || {};
+	const instanceOptions = options || {};
 
     /** 
 	 * @member {number} - Minimum accepted password length
@@ -136,8 +136,8 @@ checkPassword(passwordInput, passwordConfirm) {
 		this.collectInvalidNotes(invalidNotes, samePassword, InvalidPassword.PASSWORD_CONFIRM_NOT_SAME);
 	}
 	
-	var isValid = (0 === invalidNotes.length);
-	var result = {
+	const isValid = (0 === invalidNotes.length);
+	const result = {
 		input: passwordInput, 
 		isValid, 
 		invalidNotes
@@ -194,8 +194,8 @@ getSampleMessage(invalidNote) {
 }
 
 static runSample() {
-	var options = { enableSampleMessage: true };
-	var passwordChecker = new PasswordChecker(options);
+	const options = { enableSampleMessage: true };
+	const passwordChecker = new PasswordChecker(options);
 
 	console.log('----\r\n', passwordChecker.checkPassword(''));
 	console.log('----\r\n', passwordChecker.checkPassword('a'));

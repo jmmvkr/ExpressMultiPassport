@@ -158,12 +158,12 @@ class Site {
      */
     addMiddlewares() {
         // check required config input
-        var config = this.config;
+        const config = this.config;
         Site.requiredOption(config.sessionOptions.secret, 'SESSION_SECRET not set');
-        var cookieSecret = Site.requiredOption(config.cookieOptions.secret, 'COOKIE_SECRET not set');
+        const cookieSecret = Site.requiredOption(config.cookieOptions.secret, 'COOKIE_SECRET not set');
 
         // add middlewares
-        var app = this.app;
+        const app = this.app;
         app.use(session(config.sessionOptions));
         app.use(cookieParser(cookieSecret));
         app.use(express.json());
@@ -179,8 +179,8 @@ class Site {
      * Add routes to root router of this site.
      */
     addRoutes() {
-        var site = this;
-        var router = this.router;
+        const site = this;
+        const router = this.router;
 
         // show index page
         router.get('/', function (req, res, next) {
@@ -214,8 +214,8 @@ class Site {
             site.renderSignUp(req, res);
         });
         router.post('/signup/password', async function (req, res, next) {
-            var email = req.body.emailAddr;
-            var password = req.body.password;
+            const email = req.body.emailAddr;
+            const password = req.body.password;
             var message;
 
             var result;
@@ -269,11 +269,11 @@ class Site {
         });
 
         // create LocalStrategy
-        var site = this;
-        var config = site.config;
-        var localStrategy = new LocalStrategy(config.passportOptions, async function verify(email, password, cb) {
+        const site = this;
+        const config = site.config;
+        const localStrategy = new LocalStrategy(config.passportOptions, async function verify(email, password, cb) {
+            const isRestored = (RESTORED_LOGIN === password);
             var succeed = false;
-            var isRestored = (RESTORED_LOGIN === password);
             try {
                 if (!isRestored) {
                     succeed = await site.account.emailSignIn(email, password);
@@ -302,7 +302,7 @@ class Site {
      * @param {NextCallback} next - Callback of next Express.js middleware
      */
     localAuthenticate(req, res, next) {
-        var parsedPassword = req.body.password;
+        const parsedPassword = req.body.password;
         if (parsedPassword && (RESTORED_LOGIN === parsedPassword)) {
             return next(ERROR_LOGIN_FAILED);
         }
@@ -413,7 +413,7 @@ class Site {
      * @param {string} [loginType] - Type of user login. Currently 'local', 'google-oauth2', and 'facebook' are supported.
      */
     static signRestoreUser(res, email, loginType) {
-        var policy = RESTORE_COOKIE_POLICY;
+        const policy = RESTORE_COOKIE_POLICY;
         if (!loginType) {
             loginType = LOCAL_LOGIN;
         }
@@ -429,7 +429,7 @@ class Site {
      * @see #initialize
      */
     static makeOne(app, config) {
-        var site = new Site(app, config);
+        const site = new Site(app, config);
         site.initialize();
         return site;
     }

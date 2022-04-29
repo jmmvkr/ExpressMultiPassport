@@ -16,7 +16,7 @@ class DbAccess {
      * @returns {PrismaClient} - created database client instance.
      */
     static createDbClient() {
-        var instance = new client_1.PrismaClient();
+        const instance = new client_1.PrismaClient();
         return instance;
     }
 
@@ -39,7 +39,7 @@ class DbAccess {
      * @throws {Error} When failed to get timestamp of now.
      */
     static async getDbNow(prisma) {
-        var dataNow = await prisma.$queryRaw`SELECT NOW() as now;`;
+        const dataNow = await prisma.$queryRaw`SELECT NOW() as now;`;
         var now;
         if (dataNow && dataNow.length > 0) {
             now = new Date(dataNow[0].now);

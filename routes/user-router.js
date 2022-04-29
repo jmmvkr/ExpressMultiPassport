@@ -38,9 +38,9 @@ class UserRouter {
      * Add routes to a router owned by this instance.
      */
     addRoutes() {
-        var router = this.router;
-        var site = this.site;
-        var account = site.account;
+        const router = this.router;
+        const site = this.site;
+        const account = site.account;
 
         // serve dashboard
         router.get('/dashboard', site.securePage, async function (req, res, next) {
@@ -49,10 +49,10 @@ class UserRouter {
                 email = req.user.email;
             }
 
-            var isVerified = false;
+            const userList = await account.findUsersByEmail(email);
             var user;
-            var userList = await account.findUsersByEmail(email);
             var id;
+            var isVerified = false;
             if (1 === userList.length) {
                 user = userList[0];
                 isVerified = user.verified;
@@ -68,7 +68,7 @@ class UserRouter {
             if (req.user) {
                 email = req.user.email;
             }
-            var userList = await account.findUsersByEmail(email);
+            const userList = await account.findUsersByEmail(email);
             var user;
             var nickname = null;
             if (1 === userList.length) {
@@ -80,8 +80,8 @@ class UserRouter {
 
         // change nickname in user profile
         router.post('/profile', site.securePage, async function (req, res, next) {
-            var email = req.body.email;
-            var nickname = req.body.nickname;
+            const email = req.body.email;
+            const nickname = req.body.nickname;
             if (email && nickname) {
                 await account.changeUserNickname(email, nickname);
             }
@@ -90,22 +90,22 @@ class UserRouter {
 
         // serve user list
         router.get('/list', site.secureApi, async function (req, res, next) {
-            var userList = await account.getUserList();
+            const userList = await account.getUserList();
             res.json(userList);
         });
 
         // serve user statistics
         router.get('/statistics', site.secureApi, async function (req, res, next) {
-            var userStatistics = await account.getUserStatistics();
+            const userStatistics = await account.getUserStatistics();
             res.json(userStatistics);
         });
 
         // serve reset password
         router.post('/reset-password', async function (req, res, next) {
             try {
-                var userId = parseInt(req.body.userId);
-                var oldPassword = (req.body.oldPassword);
-                var newPassword = (req.body.password);
+                const userId = parseInt(req.body.userId);
+                const oldPassword = (req.body.oldPassword);
+                const newPassword = (req.body.password);
                 var message = 'Not signed in';
                 var isValid = false;
 

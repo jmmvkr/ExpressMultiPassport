@@ -25,8 +25,8 @@ class Account extends DbAccess {
      * @returns {Object[]} - a list containing user information.
      */
     async getUserList() {
-        var prisma = this.getDbClient();
-        var data = await prisma.account.findMany({
+        const prisma = this.getDbClient();
+        const data = await prisma.account.findMany({
             orderBy: {
                 id: 'asc'
             }
@@ -48,15 +48,11 @@ class Account extends DbAccess {
      * @see #countWeeklyAverage
      */
     async getUserStatistics() {
-        var totalCount = await this.countTotalSignedUp();
-        var todayActive = await this.countTodayActive();
-        var weeklyAverage = await this.countWeeklyAverage();
+        const totalCount = await this.countTotalSignedUp();
+        const todayActive = await this.countTodayActive();
+        const weeklyAverage = await this.countWeeklyAverage();
 
-        // adjust precision for user friendly
-        var floatBase = 0.01;
-        weeklyAverage = Math.ceil(weeklyAverage / floatBase) * floatBase;
-
-        var allStatistics = {
+        const allStatistics = {
             totalCount,
             todayActive,
             weeklyAverage
@@ -70,8 +66,8 @@ class Account extends DbAccess {
      * @returns {Object[]} - a list of users that have given email address.
      */
     async findUsersByEmail(email) {
-        var prisma = this.getDbClient();
-        var userList = await prisma.account.findMany({
+        const prisma = this.getDbClient();
+        const userList = await prisma.account.findMany({
             where: {
                 email: email
             }
@@ -85,8 +81,8 @@ class Account extends DbAccess {
      * @returns {Object} - a user that have given email address.
      */
     async findUserById(id) {
-        var prisma = this.getDbClient();
-        var user = await prisma.account.findFirst({
+        const prisma = this.getDbClient();
+        const user = await prisma.account.findFirst({
             where: {
                 id
             }
@@ -113,7 +109,7 @@ class Account extends DbAccess {
             throw new Error('New Password is the same as Old Password');
         }
 
-        var oldUserList = await this.findUsersByEmail(email);
+        const oldUserList = await this.findUsersByEmail(email);
         var isOldHashValid = false;
         if (DbAccess.hasData(oldUserList)) {
             if (1 === oldUserList.length) {
@@ -176,8 +172,8 @@ class Account extends DbAccess {
      * @returns {number} - number of signed up users.
      */
     async countTotalSignedUp() {
-        var prisma = this.getDbClient();
-        var totalCount = await prisma.account.count();
+        const prisma = this.getDbClient();
+        const totalCount = await prisma.account.count();
         return totalCount;
     }
 
@@ -186,11 +182,11 @@ class Account extends DbAccess {
      * @returns {number} - number of active users today.
      */
     async countTodayActive() {
-        var prisma = this.getDbClient();
-        var now = await DbAccess.getDbNow(prisma);
-        var today = TimeUtil.getDayStart(now);
+        const prisma = this.getDbClient();
+        const now = await DbAccess.getDbNow(prisma);
+        const today = TimeUtil.getDayStart(now);
 
-        var todayCount = await prisma.account.count({
+        const todayCount = await prisma.account.count({
             where: {
                 session: {
                     gte: today,
@@ -206,11 +202,11 @@ class Account extends DbAccess {
      * @returns {number} - average number of active users this week.
      */
     async countWeeklyAverage() {
-        var prisma = this.getDbClient();
-        var timeEnd = await DbAccess.getDbNow(prisma);
-        var timeStart = TimeUtil.addDays(timeEnd, -7);
+        const prisma = this.getDbClient();
+        const timeEnd = await DbAccess.getDbNow(prisma);
+        const timeStart = TimeUtil.addDays(timeEnd, -7);
 
-        var weekCount = await prisma.account.count({
+        const weekCount = await prisma.account.count({
             where: {
                 session: {
                     gte: timeStart,
@@ -218,7 +214,7 @@ class Account extends DbAccess {
                 }
             }
         });
-        var weekAverage = (weekCount / 7);
+        const weekAverage = (weekCount / 7);
         return weekAverage;
     }
 
@@ -230,7 +226,7 @@ class Account extends DbAccess {
      * @returns {boolean} - true if sign in succeed
      */
     async emailSignIn(email, password) {
-        var oldUserList = await this.findUsersByEmail(email);
+        const oldUserList = await this.findUsersByEmail(email);
         var row;
         var isValidHash;
         if (1 === oldUserList.length) {
@@ -252,9 +248,9 @@ class Account extends DbAccess {
      * @throws {Error} When given E-mail was already used in previous sign-up
      */
     async emailSignUp(email, password, nickname) {
-        var verified = false;
-        var prisma = this.getDbClient();
-        var oldUserList = await this.findUsersByEmail(email);
+        const verified = false;
+        const prisma = this.getDbClient();
+        const oldUserList = await this.findUsersByEmail(email);
         if (DbAccess.hasData(oldUserList)) {
             throw new Error('E-mail was already used');
         }
@@ -264,8 +260,8 @@ class Account extends DbAccess {
         } else {
             hash = 'x';
         }
-        var now = await DbAccess.getDbNow(prisma);
-        var data = {
+        const now = await DbAccess.getDbNow(prisma);
+        const data = {
             nickname,
             email,
             password: hash,
@@ -275,7 +271,7 @@ class Account extends DbAccess {
             session: null,
             verified
         };
-        var result = await prisma.account.createMany({ data });
+        const result = await prisma.account.createMany({ data });
         return DbAccess.getUpdateCount(result);
     }
 
@@ -286,7 +282,7 @@ class Account extends DbAccess {
      * @returns {boolean} - always true
      */
     async updateSession(email, isRestored) {
-        var oldUserList = await this.findUsersByEmail(email);
+        const oldUserList = await this.findUsersByEmail(email);
         var prisma;
         if (1 === oldUserList.length) {
             prisma = this.getDbClient();

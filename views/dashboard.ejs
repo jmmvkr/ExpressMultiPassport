@@ -51,6 +51,9 @@
 					<input type="submit" class="btn-round btn-signout" value="Logout" />
 				</form>
 			</div>
+			<div class="btn-right">
+				<input type="button" class="btn-round btn-change-password" value="Reset Password" onclick="showUiCell('#paneResetPassword',true)" />
+			</div>
 			
 			<h3>Dashboard</h3>
 			<div class="gap"></div>
@@ -127,8 +130,43 @@
 	</div>
 </div>
 
-<div style="display: none">
-	<div class="g-signin2" data-onsuccess="onGoogleSignIn"></div>
+<div id="paneResetPassword" class="box-hidden">
+    <div class="container page-layout">
+		<div class="col-sm-2"></div>
+		<div class="col-sm-8 card-like login-block">
+			<a class="btn-right" href="?clearPassword" onclick="showUiCell('#paneResetPassword',false)">&nbsp;X&nbsp;</a>
+			<form action="/user/dashboard" method="POST" onsubmit="return updatePassword()">
+				<h3>Reset Password</h3>
+				<div class="login-item">
+					<h4>Old Password</h4>
+					<input name="oldPassword" id="oldPassword" type="password" />
+				</div>
+				<div class="login-item">
+					<h4>New Password</h4>
+					<input name="password" id="password" type="password" />
+				</div>
+				<div class="login-item">
+					<h4>Confirm New Password</h4>
+					<input id="passwordConfirm" type="password" />
+				</div>
+				<div class="login-item login-error alert alert-danger box-hidden">
+				</div>
+				<div class="login-item login-information alert alert-success box-hidden">
+				</div>
+<% if(locals.id) { %>
+				<input name="userId" id="userId" type="hidden" value="<%= id %>" />
+<% } %>
+				<div class="gap"></div>
+				<div class="login-item login-error alert alert-danger box-hidden">
+				</div>
+				<div class="login-item login-information alert alert-success box-hidden">
+				</div>
+				<div class="gap"></div>
+				<input type="submit" class="btn-round btn-spaced btn-update" value="Update" />
+			</form>
+		</div>
+		<div class="col-sm-2"></div>
+    </div>
 </div>
 
 </body>

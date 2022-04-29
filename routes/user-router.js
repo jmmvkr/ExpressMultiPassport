@@ -52,12 +52,14 @@ class UserRouter {
             var isVerified = false;
             var user;
             var userList = await account.findUsersByEmail(email);
+            var id;
             if (1 === userList.length) {
                 user = userList[0];
                 isVerified = user.verified;
+                id = user.id;
             }
 
-            res.render('dashboard.ejs', { isVerified });
+            res.render('dashboard.ejs', { id, isVerified });
         });
 
         // serve user profile
@@ -96,6 +98,43 @@ class UserRouter {
         router.get('/statistics', site.secureApi, async function (req, res, next) {
             var userStatistics = await account.getUserStatistics();
             res.json(userStatistics);
+        });
+
+        // serve reset password
+        router.post('/reset-password', async function (req, res, next) {
+            try {
+                var userId = parseInt(req.body.userId);
+                var oldPassword = (req.body.oldPassword);
+                var newPassword = (req.body.password);
+                var message = 'Not signed in';
+                var isValid = false;
+
+                if (!req.isAuthenticated()) {
+                    return res.json({ isValid, message });
+                }
+                if (!userId) {
+                    return res.json({ isValid, message });
+                }
+
+                var user = await account.findUserById(userId);
+                var result;
+                var updateCount;
+                if (user && (user.email === req.user.email)) {
+                    result = site.passwordChecker.checkPassword(newPassword);
+                    if (!result.isValid) {
+                        message = site.concatMessage(result.invalidNotes);
+                        return res.json({ isValid, message });
+                    }
+                    updateCount = await site.account.changeUserPassword(user.email, oldPassword, newPassword);
+                    if (1 === updateCount) {
+                        isValid = true;
+                        return res.json({ isValid, information: 'Password updated' });
+                    }
+                }
+                return res.json({ isValid, message: 'Failed to update password' });
+            } catch (err) {
+                return res.json({ isValid, message: err.message });
+            }
         });
     }
 

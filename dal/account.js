@@ -80,10 +80,76 @@ class Account extends DbAccess {
     }
 
     /**
+     * Find user by id in database.
+     * @param {number} id - id of user record in database.
+     * @returns {Object} - a user that have given email address.
+     */
+    async findUserById(id) {
+        var prisma = this.getDbClient();
+        var user = await prisma.account.findFirst({
+            where: {
+                id
+            }
+        });
+        return user;
+    }
+
+    /**
+     * Change password of a user.
+     * @param {string} email 
+     * @param {string} oldPassword 
+     * @param {string} newPassword 
+     * @returns {number} - number of record updated by this operation (0 if failed, and 1 if succeed).
+     */
+    async changeUserPassword(email, oldPassword, newPassword) {
+        var id = 0;
+        var oldHash = '';
+        var row;
+
+        if (oldPassword === newPassword) {
+            throw new Error('New Password is the same as Old Password');
+        }
+
+        var oldUserList = await this.findUsersByEmail(email);
+        var isOldHashValid = false;
+        if (DbAccess.hasData(oldUserList)) {
+            if (1 === oldUserList.length) {
+                row = oldUserList[0];
+                id = row.id;
+                email = row.email;
+                oldHash = row.password;
+
+                isOldHashValid = Account.checkHash(oldPassword, oldHash);
+            }
+        }
+        if (!isOldHashValid) {
+            throw new Error('Old Password not match');
+        }
+
+        var prisma;
+        var result = null;
+        var newHash = Account.makeHash(newPassword);
+        if (id && email) {
+            prisma = this.getDbClient();
+            result = await prisma.account.updateMany({
+                where: {
+                    id,
+                    email
+                },
+                data: {
+                    password: newHash
+                }
+            });
+        }
+
+        return DbAccess.getUpdateCount(result);
+    }
+
+    /**
      * Change nickname of a user.
      * @param {string} email - Email address of user.
      * @param {string} nickname - New nickname of user.
-     * @returns {number} - number of record updateed by this operation (0 if failed, and 1 if succeed).
+     * @returns {number} - number of record updated by this operation (0 if failed, and 1 if succeed).
      */
     async changeUserNickname(email, nickname) {
         var prisma;

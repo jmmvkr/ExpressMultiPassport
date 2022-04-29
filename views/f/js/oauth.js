@@ -67,14 +67,14 @@ function oauthFacebookSignIn() {
 function displayError(message) {
 	var ele = document.querySelector('.login-error');
 	ele.classList.remove('box-hidden');
-	ele.innerHTML = message.replace(/\n/g, '<br/>');
+	ele.innerHTML = message.replaceAll('\\n', '\n').replace(/\n/g, '<br/>');
 	return false;
 }
 
 function displayInformation(message) {
 	var ele = document.querySelector('.login-information');
 	ele.classList.remove('box-hidden');
-	ele.innerHTML = message.replace(/\n/g, '<br/>');
+	ele.innerHTML = message.replaceAll('\\n', '\n').replace(/\n/g, '<br/>');
 	setTimeout(function() {
 		ele.classList.add('box-hidden');
 	}, 3000);
@@ -110,6 +110,48 @@ function getCookie(cname) {
 	return "";
 }
 
+function fillEmail() {
+	var cookieEmail = getCookie('email');
+	if(cookieEmail) {
+		document.querySelector('#emailAddr').value = cookieEmail;
+	}
+}
+
+function checkEmail(email) {
+	document.cookie = `email=${email};path=/`;
+	if(email.length <= 0) {
+		return displayError('Please enter E-mail');
+	}
+	return true;
+}
+
+function checkPassword(password, message) {
+	if(password.length <= 0) {
+		return displayError(message || 'Please enter Password');
+	}
+	return true;
+}
+
+function checkPasswordChange() {
+	var oldPassword = document.querySelector('#oldPassword').value;
+	var newPassword = document.querySelector('#password').value;
+	var passwordConfirm = document.querySelector('#passwordConfirm').value;
+	
+	if(! checkPassword(oldPassword, 'Please enter Old Password')) {
+		return false;
+	}
+	if(! checkPassword(newPassword, 'Please enter New Password')) {
+		return false;
+	}
+	if(! checkPassword(passwordConfirm, 'Please enter Confirm New Password')) {
+		return false;
+	}
+	if(newPassword === passwordConfirm) {
+		return true;
+	}
+	return displayError('Confirm Password not match');
+}
+
 function postJson(uri, obj, cbText) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", uri);
@@ -131,4 +173,39 @@ function getJson(uri, cbText) {
 		}
 	}
 	xhr.send(null);
+}
+
+function updatePassword() {
+	var isValid = checkPasswordChange();
+	
+	if(! isValid) {
+		return false;
+	}
+	
+	var userId = parseInt(document.querySelector('#userId').value);
+	var oldPassword = document.querySelector('#oldPassword').value;
+	var password = document.querySelector('#password').value;
+	
+	var obj = {
+		userId, 
+		oldPassword, 
+		password
+	};
+	
+	showUiCell('.login-error', false);
+	showUiCell('.login-information', false);
+	document.querySelector('#oldPassword').value = '';
+	document.querySelector('#password').value = '';
+	document.querySelector('#passwordConfirm').value = '';
+	
+	postJson('/user/reset-password', obj, (text) => {
+		var result = JSON.parse(text);
+		if(result.message) {
+			return displayError(result.message);
+		}
+		if(result.information) {
+			return displayInformation(result.information);
+		}
+	});
+	return false;
 }

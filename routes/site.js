@@ -164,6 +164,7 @@ class Site {
         var app = this.app;
         app.use(session(config.sessionOptions));
         app.use(cookieParser(cookieSecret));
+        app.use(express.json());
         app.use(express.urlencoded({ extended: false }));
         app.use(passport.initialize());
         app.use(passport.session());

@@ -49,6 +49,12 @@ class Global { }
  */
 
 /**
+ * Result of a database INSERT / UPDATE command.
+ * @typedef {Object} UpdateResult
+ * @property {number} count - Number of records updated in a database operation.
+ */
+
+/**
  * A namespace for routes.
  * @namespace routes
  */

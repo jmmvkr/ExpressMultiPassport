@@ -72,7 +72,7 @@ class DbAccess {
 
     /**
      * Get update count of a database INSERT / UPDATE command.
-     * @param {*} result - The database result of a INSERT / UPDATE query 
+     * @param {UpdateResult} result - The database result of a INSERT / UPDATE query.
      * @returns {number} - number of updated data rows.
      */
     static getUpdateCount(result) {

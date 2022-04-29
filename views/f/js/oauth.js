@@ -132,6 +132,25 @@ function checkPassword(password, message) {
 	return true;
 }
 
+function checkLogin() {
+	var email = document.querySelector('#emailAddr').value;
+	var password = document.querySelector('#password').value;
+	return checkEmail(email) && checkPassword(password);
+}
+
+function checkSignUp() {
+	var email = document.querySelector('#emailAddr').value;
+	var password = document.querySelector('#password').value;
+	var passwordConfirm = document.querySelector('#passwordConfirm').value;
+	if(false === (checkEmail(email) && checkPassword(password))) {
+		return false;
+	}
+	if(password === passwordConfirm) {
+		return true;
+	}
+	return displayError('Confirm Password not match');
+}
+
 function checkPasswordChange() {
 	var oldPassword = document.querySelector('#oldPassword').value;
 	var newPassword = document.querySelector('#password').value;

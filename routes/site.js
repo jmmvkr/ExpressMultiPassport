@@ -112,6 +112,8 @@ class Site {
      * 
      * @param {AnyType} inputValue - The option input to be checked
      * @return {AnyType} - The given inputValue
+     * 
+     * @throws {Error} When required option input (the inputValue) is missing.
      */
     static requiredOption(inputValue, message) {
         if (!inputValue) {

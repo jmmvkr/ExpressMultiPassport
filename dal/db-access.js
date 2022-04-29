@@ -35,6 +35,8 @@ class DbAccess {
      * Get timestamp of now on database side.
      * @param {PrismaClient} prisma - database client instance.
      * @returns {Date} - timestamp of now on database side.
+     * 
+     * @throws {Error} When failed to get timestamp of now.
      */
     static async getDbNow(prisma) {
         var dataNow = await prisma.$queryRaw`SELECT NOW() as now;`;
@@ -51,6 +53,8 @@ class DbAccess {
      * Determine data rows from a SELECT query has data or not.
      * @param {Object[]} dataRows - The database result of a SELECT query
      * @returns {boolean} true - if dataRows has data (length >= 1)
+     * 
+     * @throws {Error} When given dataRows is not an Array.
      */
     static hasData(dataRows) {
         var dataType;

@@ -96,10 +96,13 @@ class Account extends DbAccess {
 
     /**
      * Change password of a user.
-     * @param {string} email 
-     * @param {string} oldPassword 
-     * @param {string} newPassword 
+     * @param {string} email - Email address of user
+     * @param {string} oldPassword - Old password of user in plain-text form.
+     * @param {string} newPassword - New password of user in plain-text form.
      * @returns {number} - number of record updated by this operation (0 if failed, and 1 if succeed).
+     * 
+     * @throws {Error} When New Password is the same as Old Password
+     * @throws {Error} When Old Password not match
      */
     async changeUserPassword(email, oldPassword, newPassword) {
         var id = 0;
@@ -245,6 +248,8 @@ class Account extends DbAccess {
      * @param {string} password - Password from user
      * @param {string} nickname - Initial nickname extracted from email
      * @returns {number} - number of record inserted by this sign up operation (normally 0 if failed, and 1 if succeed)
+     * 
+     * @throws {Error} When given E-mail was already used in previous sign-up
      */
     async emailSignUp(email, password, nickname) {
         var verified = false;

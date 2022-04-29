@@ -11,7 +11,7 @@ class OAuthSuite {
 		xmlhttp.open("POST", uri);
 		xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 		xmlhttp.onreadystatechange = function () {
-			if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+			if (xmlhttp.readyState === XMLHttpRequest.DONE) {
 				console.log('response: ', xmlhttp.responseText)
 			}
 		}
@@ -100,10 +100,10 @@ function getCookie(cname) {
 	let ca = decodedCookie.split(';');
 	for(let i = 0; i <ca.length; i++) {
 		let c = ca[i];
-		while (c.charAt(0) == ' ') {
+		while (c.charAt(0) === ' ') {
 			c = c.substring(1);
 		}
-		if (c.indexOf(name) == 0) {
+		if (c.indexOf(name) === 0) {
 			return c.substring(name.length, c.length);
 		}
 	}
@@ -176,7 +176,7 @@ function postJson(uri, obj, cbText) {
 	xhr.open("POST", uri);
 	xhr.setRequestHeader("Content-Type", "application/json");
 	xhr.onreadystatechange = function () {
-		if (xhr.readyState == XMLHttpRequest.DONE) {
+		if (xhr.readyState === XMLHttpRequest.DONE) {
 			cbText(xhr.responseText);
 		}
 	}
@@ -187,7 +187,7 @@ function getJson(uri, cbText) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", uri);
 	xhr.onreadystatechange = function () {
-		if (xhr.readyState == XMLHttpRequest.DONE) {
+		if (xhr.readyState === XMLHttpRequest.DONE) {
 			cbText(xhr.responseText);
 		}
 	}

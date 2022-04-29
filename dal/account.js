@@ -80,6 +80,29 @@ class Account extends DbAccess {
     }
 
     /**
+     * Change nickname of a user.
+     * @param {string} email - Email address of user.
+     * @param {string} nickname - New nickname of user.
+     * @returns {number} - number of record updateed by this operation (0 if failed, and 1 if succeed).
+     */
+    async changeUserNickname(email, nickname) {
+        var prisma;
+        var result = null;
+        if (email && nickname) {
+            prisma = this.getDbClient();
+            result = await prisma.account.updateMany({
+                where: {
+                    email
+                },
+                data: {
+                    nickname
+                }
+            });
+        }
+        return DbAccess.getUpdateCount(result);
+    }
+
+    /**
      * Count number of signed up users.
      * @returns {number} - number of signed up users.
      */

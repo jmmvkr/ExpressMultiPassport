@@ -59,7 +59,7 @@ class UserRouter {
 
             res.render('dashboard.ejs', { isVerified });
         });
-        
+
         // serve user profile
         router.get('/profile', site.securePage, async function (req, res, next) {
             var email = '';
@@ -74,6 +74,16 @@ class UserRouter {
                 nickname = user.nickname;
             }
             res.render('profile.ejs', { nickname, email });
+        });
+
+        // change nickname in user profile
+        router.post('/profile', site.securePage, async function (req, res, next) {
+            var email = req.body.email;
+            var nickname = req.body.nickname;
+            if (email && nickname) {
+                await account.changeUserNickname(email, nickname);
+            }
+            return res.redirect(req.originalUrl);
         });
 
         // serve user list

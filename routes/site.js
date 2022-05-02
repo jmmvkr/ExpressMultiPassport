@@ -3,7 +3,8 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser')
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
-
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const Account = require("../dal/account.js");
 const PasswordChecker = require('../util/password-checker.js');
@@ -254,8 +255,58 @@ class Site {
         // serve static content
         router.use('/', express.static('views'));
 
-        // serve documentation
-        router.use('/jsdoc', express.static('jsdoc'));
+        // serve documentation (JSDoc)
+        /**
+         * @swagger
+         * paths:
+         *   /jsdoc:
+         *     get:
+         *       tags:
+         *         - "docs"
+         *       description: Document for JavaScript APIs
+         *       responses:
+         *         200:
+         *           description: The JSDoc API Document
+         */
+         router.use('/jsdoc', express.static('jsdoc'));
+
+        // serve documentation (Swagger UI)
+        /**
+         * @swagger
+         * paths:
+         *   /apidoc:
+         *     get:
+         *       tags:
+         *         - "docs"
+         *       description: Document for RESTful APIs
+         *       responses:
+         *         200:
+         *           description: The REST API Document
+         */
+        this.addSwaggerRoute(router, '/apidoc');
+    }
+
+    /**
+     * Serve Swagger UI on given url relative to given router.
+     * @param {Router} router - Router to add the Swagger UI.
+     * @param {string} url - URL relative to given router.
+     */
+    addSwaggerRoute(router, url) {
+        const swaggerDefinition = {
+            openapi: '3.0.0',
+            info: {
+                title: 'REST API Document',
+                version: '1.0.0',
+            },
+        };
+        const options = {
+            swaggerDefinition,
+            // Paths to files containing OpenAPI definitions
+            apis: ['./routes/*.js'],
+        };
+        const swaggerSpec = swaggerJSDoc(options);
+        
+        router.use(url, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     }
 
     /**

@@ -263,6 +263,7 @@ class Site {
          *     get:
          *       tags:
          *         - "docs"
+         *       summary: Show JSDoc Document
          *       description: Document for JavaScript APIs
          *       responses:
          *         200:
@@ -278,6 +279,7 @@ class Site {
          *     get:
          *       tags:
          *         - "docs"
+         *       summary: Show Swagger Document
          *       description: Document for RESTful APIs
          *       responses:
          *         200:

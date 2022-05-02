@@ -8,7 +8,7 @@ class Global { }
 
 /**
  * A message object is assumed to be a normal Object or an Error, with string property named 'message'
- * @typedef {Object|Error} MessageObject
+ * @typedef {Object|Error|InvalidNote} MessageObject
  * @property {string} message - Message stored in the message object
  */
 
@@ -52,6 +52,21 @@ class Global { }
  * Result of a database INSERT / UPDATE command.
  * @typedef {Object} UpdateResult
  * @property {number} count - Number of records updated in a database operation.
+ */
+
+/**
+ * Result of a complex input check operation.
+ * @typedef {Object} InputCheck
+ * @property {string} input - Original input string to be checked.
+ * @property {boolean} isValid - The input string is valid or not.
+ * @property {InvalidNote[]} invalidNotes - The causes of why an input check operation fails.
+ */
+
+/**
+ * An cause of why input check operation fails.
+ * @typedef {Object} InvalidNote
+ * @property {number} note - Numeric note for why input check operation fails.
+ * @property {string} [message] - Optional human-friendly message for why input check operation fails.
  */
 
 /**

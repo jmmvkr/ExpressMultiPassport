@@ -198,7 +198,7 @@ class Site {
         });
 
         // serve sign-in
-        router.get('/signin', function (req, res) {
+        router.get('/signin', site.tryRestoreLogin, function (req, res) {
             site.renderSignIn(req, res);
         });
         router.post('/signin/password', site.localAuthenticate, function (err, req, res, next) {
@@ -210,7 +210,7 @@ class Site {
         });
 
         // serve sign-up
-        router.get('/signup', function (req, res) {
+        router.get('/signup', site.tryRestoreLogin, function (req, res) {
             site.renderSignUp(req, res);
         });
         router.post('/signup/password', async function (req, res, next) {
@@ -321,6 +321,41 @@ class Site {
             });
         });
         cbAuthMiddleware(req, res, next);
+    }
+
+    /**
+     * Middleware for restore login according to cookie.
+     * 
+     * @param {Request} req - The HTTP request
+     * @param {Response} res - The HTTP response
+     * @param {NextCallback} next - Callback of next Express.js middleware
+     */
+    tryRestoreLogin(req, res, next) {
+        var signedUser = '';
+        if (!req.isAuthenticated()) {
+
+            // try to restore auth0 login
+            var loginType = req.signedCookies.loginType;
+            if (loginType && (LOCAL_LOGIN !== loginType)) {
+                return next();
+            }
+
+            // try to restore local login
+            signedUser = req.signedCookies.user;
+            if (signedUser) {
+                var user = req.signedCookies.user;
+                req.body.emailAddr = user;
+                req.body.password = req.signedCookies.password;
+
+                return passport.authenticate('db-auth')(req, res, function () {
+                    var redirectUri = req.cookies.lastPage || USER_HOME;
+                    return Site.signRestoreUser(res, user).redirect(redirectUri);
+                });
+            }
+            return next();
+        }
+
+        res.redirect(USER_HOME);
     }
 
     /**

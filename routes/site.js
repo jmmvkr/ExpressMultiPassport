@@ -234,7 +234,11 @@ class Site {
                 if (result.isValid) {
                     nickname = email.split('@')[0];
                     await site.account.emailSignUp(email, password, nickname);
-                    return res.redirect(USER_HOME);
+
+                    // sign in automatically when signed up
+                    return passport.authenticate('db-auth')(req, res, function () {
+                        return res.redirect(USER_HOME);
+                    });
                 } else {
                     message = site.concatMessage(result.invalidNotes);
                     return site.renderSignUp(req, res, { message });

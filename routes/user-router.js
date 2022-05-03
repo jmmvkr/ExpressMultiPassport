@@ -43,6 +43,20 @@ class UserRouter {
         const account = site.account;
 
         // serve dashboard
+        /**
+         * @swagger
+         * paths:
+         *   /user/dashboard:
+         *     get:
+         *       summary: Show dashboard
+         *       tags:
+         *         - "user"
+         *       responses:
+         *         200:
+         *           description: Show dashboard when signed in
+         *         302:
+         *           description: Redirect to /signin when user not yet signed in
+         */
         router.get('/dashboard', site.securePage, async function (req, res, next) {
             var email = '';
             if (req.user) {
@@ -63,7 +77,21 @@ class UserRouter {
         });
 
         // serve user profile
-        router.get('/profile', site.securePage, async function (req, res, next) {
+        /**
+         * @swagger
+         * paths:
+         *   /user/profile:
+         *     get:
+         *       summary: Show user profile
+         *       tags:
+         *         - "user"
+         *       responses:
+         *         200:
+         *           description: Show user profile when signed in
+         *         302:
+         *           description: Redirect to /signin when user not yet signed in
+         */
+         router.get('/profile', site.securePage, async function (req, res, next) {
             var email = '';
             if (req.user) {
                 email = req.user.email;
@@ -79,7 +107,36 @@ class UserRouter {
         });
 
         // change nickname in user profile
-        router.post('/profile', site.securePage, async function (req, res, next) {
+        /**
+         * @swagger
+         * paths:
+         *   /user/profile:
+         *     post:
+         *       summary: Handle nickname change in user profile
+         *       tags:
+         *         - "user"
+         *       requestBody:
+         *         content:
+         *           application/x-www-form-urlencoded:
+         *             schema:
+         *               type: object
+         *               properties:
+         *                 email:
+         *                   type: string
+         *                   description: Email address of a user
+         *                 nickname:
+         *                   type: string
+         *                   description: New nickname of a user
+         *               required:
+         *                - email
+         *                - nickname
+         *       responses:
+         *         200:
+         *           description: Always redirect to user profile (GET method) to show the updated nickname
+         *         302:
+         *           description: Redirect to /signin when user not yet signed in
+         */
+         router.post('/profile', site.securePage, async function (req, res, next) {
             const email = req.body.email;
             const nickname = req.body.nickname;
             if (email && nickname) {
@@ -89,18 +146,74 @@ class UserRouter {
         });
 
         // serve user list
+        /**
+         * @swagger
+         * paths:
+         *   /user/list:
+         *     get:
+         *       summary: Show list of users, in JSON format
+         *       tags:
+         *         - "user"
+         *       responses:
+         *         200:
+         *           description: Show list of users
+         */
         router.get('/list', site.secureApi, async function (req, res, next) {
             const userList = await account.getUserList();
             res.json(userList);
         });
 
         // serve user statistics
-        router.get('/statistics', site.secureApi, async function (req, res, next) {
+        /**
+         * @swagger
+         * paths:
+         *   /user/statistics:
+         *     get:
+         *       summary: Show user statistics, in JSON format
+         *       tags:
+         *         - "user"
+         *       responses:
+         *         200:
+         *           description: Show user statistics
+         */
+         router.get('/statistics', site.secureApi, async function (req, res, next) {
             const userStatistics = await account.getUserStatistics();
             res.json(userStatistics);
         });
 
         // serve reset password
+        /**
+         * paths:
+         * @swagger
+         *   /user/reset-password:
+         *     post:
+         *       summary: Handle reset password
+         *       tags:
+         *         - "user"
+         *       requestBody:
+         *         content:
+         *           application/json:
+         *             schema:
+         *               type: object
+         *               properties:
+         *                 userId:
+         *                   type: number
+         *                   description: unique database id of a user
+         *                 oldPassword:
+         *                   type: string
+         *                   description: Old password of a user
+         *                 password:
+         *                   type: string
+         *                   description: New password of a user
+         *               required:
+         *                - email
+         *                - nickname
+         *       responses:
+         *         200:
+         *           description: Show result of this reset password operation
+         *         401:
+         *           description: Show Unauthorized if user not yet signed in
+         */
         router.post('/reset-password', async function (req, res, next) {
             try {
                 const userId = parseInt(req.body.userId);
@@ -110,10 +223,10 @@ class UserRouter {
                 var isValid = false;
 
                 if (!req.isAuthenticated()) {
-                    return res.json({ isValid, message });
+                    return res.status(401).json({ isValid, message });
                 }
                 if (!userId) {
-                    return res.json({ isValid, message });
+                    return res.status(401).json({ isValid, message });
                 }
 
                 var user = await account.findUserById(userId);

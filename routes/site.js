@@ -259,8 +259,10 @@ class Site {
          *               properties:
          *                 emailAddr:
          *                   type: string
+         *                   description: Email address of a user
          *                 password:
          *                   type: string
+         *                   description: Raw password of a user
          *               required:
          *                - emailAddr
          *                - password
@@ -313,8 +315,10 @@ class Site {
          *               properties:
          *                 emailAddr:
          *                   type: string
+         *                   description: Email address of a user
          *                 password:
          *                   type: string
+         *                   description: Raw password of a user
          *               required:
          *                - emailAddr
          *                - password

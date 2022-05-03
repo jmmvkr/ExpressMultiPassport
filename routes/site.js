@@ -183,12 +183,37 @@ class Site {
         const site = this;
         const router = this.router;
 
-        // show index page
+        // serve landing page
+        /**
+         * @swagger
+         * paths:
+         *   /:
+         *     get:
+         *       tags:
+         *         - "landing"
+         *       summary: Show the landing page
+         *       responses:
+         *         200:
+         *           description: Always show the landing page
+         */
         router.get('/', function (req, res, next) {
             res.render('index.ejs');
         });
 
         // serve sign-out
+        /**
+         * @swagger
+         * paths:
+         *   /signout:
+         *     get:
+         *       tags:
+         *         - "account"
+         *       summary: Sign out a user
+         *       description: ""
+         *       responses:
+         *         200:
+         *           description: Always redirect to /
+         */
         router.get('/signout', function (req, res, next) {
             Site.signRestoreUser(res, '', '');
             req.logout();
@@ -198,10 +223,53 @@ class Site {
             return next();
         });
 
-        // serve sign-in
+        // serve sign-in page
+        /**
+         * @swagger
+         * paths:
+         *   /signin:
+         *     get:
+         *       tags:
+         *         - "account"
+         *       summary: Show the sign in page
+         *       description: ""
+         *       responses:
+         *         200:
+         *           description: Always show the sign in page
+         */
         router.get('/signin', site.tryRestoreLogin, function (req, res) {
             site.renderSignIn(req, res);
         });
+
+        // serve password sign-in
+        /**
+         * @swagger
+         * paths:
+         *   /signin/password:
+         *     post:
+         *       tags:
+         *         - "account"
+         *       summary: Handle password sign in
+         *       description: ""
+         *       requestBody:
+         *         content:
+         *           application/x-www-form-urlencoded:
+         *             schema:
+         *               type: object
+         *               properties:
+         *                 emailAddr:
+         *                   type: string
+         *                 password:
+         *                   type: string
+         *               required:
+         *                - emailAddr
+         *                - password
+         *       responses:
+         *         200:
+         *           description: If client shows only the redirected page with 200 OK
+         *         302:
+         *           description: Redirect to sign in page with error message when sign in failed, or redirect to dashboard when sign in succeed.
+         */
         router.post('/signin/password', site.localAuthenticate, function (err, req, res, next) {
             if (err) {
                 site.renderSignIn(req, res, err);
@@ -210,10 +278,52 @@ class Site {
             }
         });
 
-        // serve sign-up
+        // serve sign-up page
+        /**
+         * @swagger
+         * paths:
+         *   /signup:
+         *     get:
+         *       tags:
+         *        - "account"
+         *       summary: Show the sign up page
+         *       responses:
+         *         200:
+         *           description: Always show the sign up page
+         */
         router.get('/signup', site.tryRestoreLogin, function (req, res) {
             site.renderSignUp(req, res);
         });
+
+        // serve password sign-up
+        /**
+         * @swagger
+         * paths:
+         *   /signup/password:
+         *     post:
+         *       tags:
+         *        - "account"
+         *       summary: Handle password sign up
+         *       description: ""
+         *       requestBody:
+         *         content:
+         *           application/x-www-form-urlencoded:
+         *             schema:
+         *               type: object
+         *               properties:
+         *                 emailAddr:
+         *                   type: string
+         *                 password:
+         *                   type: string
+         *               required:
+         *                - emailAddr
+         *                - password
+         *       responses:
+         *         200:
+         *           description: If client shows only the redirected page with 200 OK
+         *         302:
+         *           description: Redirect to sign up page with error message when sign up failed, or redirect to dashboard when sign up succeed.
+         */
         router.post('/signup/password', async function (req, res, next) {
             const email = req.body.emailAddr;
             const password = req.body.password;
@@ -253,6 +363,30 @@ class Site {
         router.use('/user', UserRouter.makeOne(site));
 
         // serve static content
+        /**
+         * @swagger
+         * paths:
+         *   /f:
+         *     get:
+         *       tags:
+         *        - "landing"
+         *       summary: Show static content
+         *       responses:
+         *         200:
+         *           description: Always show the static content, if present
+         *         404:
+         *           description: Show Not Found when no such static content
+         *   /favicon.ico:
+         *     get:
+         *       tags:
+         *        - "landing"
+         *       summary: Show static content (site icon as an example)
+         *       responses:
+         *         200:
+         *           description: Always show the static content, if present
+         *         404:
+         *           description: Show Not Found when no such static content
+         */
         router.use('/', express.static('views'));
 
         // serve documentation (JSDoc)
@@ -263,13 +397,13 @@ class Site {
          *     get:
          *       tags:
          *         - "docs"
-         *       summary: Show JSDoc Document
+         *       summary: Show JSDoc Document (JavaScript APIs)
          *       description: Document for JavaScript APIs
          *       responses:
          *         200:
          *           description: The JSDoc API Document
          */
-         router.use('/jsdoc', express.static('jsdoc'));
+        router.use('/jsdoc', express.static('jsdoc'));
 
         // serve documentation (Swagger UI)
         /**
@@ -279,7 +413,7 @@ class Site {
          *     get:
          *       tags:
          *         - "docs"
-         *       summary: Show Swagger Document
+         *       summary: Show Swagger Document (RESTful APIs)
          *       description: Document for RESTful APIs
          *       responses:
          *         200:
@@ -307,7 +441,7 @@ class Site {
             apis: ['./routes/*.js'],
         };
         const swaggerSpec = swaggerJSDoc(options);
-        
+        // add swagger with option and spec
         router.use(url, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     }
 

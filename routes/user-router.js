@@ -253,6 +253,40 @@ class UserRouter {
                 return res.json({ isValid, message: err.message });
             }
         });
+
+        /**
+         * @swagger
+         * paths:
+         *   /user/get-id:
+         *     get:
+         *       summary: Show id of current signed in user (in JSON format), only for DEMO
+         *       tags:
+         *         - "user"
+         *       responses:
+         *         200:
+         *           description: Show id of current signed in user
+         *         401:
+         *           description: Show Unauthorized if user not yet signed in
+         */
+        router.get('/get-id', site.secureApi, async function (req, res, next) {
+            var email = '';
+            var id = -1;
+            if (req.user) {
+                email = req.user.email;
+            }
+            var userList;
+            var user;
+            try {
+                userList = await account.findUsersByEmail(email);
+                if (1 === userList.length) {
+                    user = userList[0];
+                    id = user.id;
+                }
+            } catch (err) {
+                id = -1;
+            }
+            return res.json({ id });
+        });
     }
 
     /**

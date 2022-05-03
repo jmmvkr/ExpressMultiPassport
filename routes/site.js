@@ -151,7 +151,7 @@ class Site {
         if (req.isAuthenticated()) {
             return next();
         }
-        return res.json({});
+        return res.status(401).json({});
     }
 
     /**

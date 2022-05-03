@@ -157,6 +157,8 @@ class UserRouter {
          *       responses:
          *         200:
          *           description: Show list of users
+         *         401:
+         *           description: Show Unauthorized if user not yet signed in
          */
         router.get('/list', site.secureApi, async function (req, res, next) {
             const userList = await account.getUserList();
@@ -175,6 +177,8 @@ class UserRouter {
          *       responses:
          *         200:
          *           description: Show user statistics
+         *         401:
+         *           description: Show Unauthorized if user not yet signed in
          */
          router.get('/statistics', site.secureApi, async function (req, res, next) {
             const userStatistics = await account.getUserStatistics();

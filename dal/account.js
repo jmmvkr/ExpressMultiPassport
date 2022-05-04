@@ -297,7 +297,7 @@ class Account extends DbAccess {
 
     /**
      * Make a hash record from given rawString (often password), with a random-generated salt.
-     * Generated hash record was defined by 
+     * Generated <strong>hash record</strong> was defined by 
      * <pre>
      * <strong>hashRecord := hashFunction(rawString)|salt</strong>
      * </pre>
@@ -305,6 +305,7 @@ class Account extends DbAccess {
      * 
      * @param {string} rawString - Given raw string to generate a hash record.
      * @returns {string} - a generated hash record.
+     * @see #.checkHash
      */
     static makeHash(rawString) {
         const salt = crypto.randomBytes(SCRYPT_SALT_LENGTH);
@@ -314,10 +315,12 @@ class Account extends DbAccess {
     }
 
     /**
-     * Check hash record calculated from rawString (often password) and previous random salt match the hash record.
+     * Check hash record calculated from rawString (often password) and previous random salt match the hash record. <br />
+     * To inspect composition of <strong>hash record</strong>, see <a href="#.makeHash">makeHash()</a>.
      * @param {string} rawString - Given raw string to be checked with hash record.
      * @param {string} fullRecord - Full hash record stored in database.
      * @returns {boolean} - true if given raw string matches hash record. 
+     * @see #.makeHash
      */
     static checkHash(rawString, fullRecord) {
         const hexSalt = fullRecord.substring(SCRYPT_SALT_IN_STRING);

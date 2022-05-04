@@ -235,7 +235,9 @@ class Site {
          *       description: ""
          *       responses:
          *         200:
-         *           description: Always show the sign in page
+         *           description: Show the sign in page when user not yet signed in
+         *         302:
+         *           description: Redirect to previous page (stored in cookie) when signed in
          */
         router.get('/signin', site.tryRestoreLogin, function (req, res) {
             site.renderSignIn(req, res);
@@ -291,7 +293,9 @@ class Site {
          *       summary: Show the sign up page
          *       responses:
          *         200:
-         *           description: Always show the sign up page
+         *           description: Show the sign up page when user not yet signed in
+         *         302:
+         *           description: Redirect to previous page (stored in cookie) when signed in
          */
         router.get('/signup', site.tryRestoreLogin, function (req, res) {
             site.renderSignUp(req, res);

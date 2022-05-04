@@ -1,8 +1,10 @@
 const express = require("express");
+const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser')
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const Auth0Strategy = require('passport-auth0');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
@@ -165,6 +167,7 @@ class Site {
 
         // add middlewares
         const app = this.app;
+        app.use(cors(config.corsOptions));
         app.use(session(config.sessionOptions));
         app.use(cookieParser(cookieSecret));
         app.use(express.json());
@@ -214,12 +217,25 @@ class Site {
          *         200:
          *           description: Always redirect to /
          */
+        const config = this.config;
         router.get('/signout', function (req, res, next) {
+            // cookie sign-out
             Site.signRestoreUser(res, '', '');
             req.logout();
             req.session.destroy();
+            res.clearCookie('user');
 
-            res.clearCookie('user').redirect('/');
+            // prepare auth0 sign-out URL
+            const domain = config.auth0Options.domain;
+            const clientID = config.auth0Options.clientID;
+            const returnTo = encodeURIComponent(config.serviceUri);
+            var logoutUri = `https://${domain}/v2/logout?client_id=${clientID}&returnTo=${returnTo}`;
+            if (req.query.federated) {
+                logoutUri += '&federated';
+            }
+
+            // let client access auth0 sign-out URL
+            res.redirect(logoutUri);
             return next();
         });
 
@@ -280,6 +296,96 @@ class Site {
             } else {
                 res.redirect(USER_HOME);
             }
+        });
+
+        // serve auth0 google signin
+        /**
+         * @swagger
+         * paths:
+         *   /signin/google:
+         *     get:
+         *       tags:
+         *         - "auth0"
+         *       summary: Handle google sign in, by auth0
+         *       responses:
+         *         302:
+         *           description: Redirect to sign-in page by auth0
+         */
+        router.get('/signin/google', passport.authenticate('auth0', { connection: 'google-oauth2' }), function (req, res) {
+            res.redirect(USER_HOME);
+        });
+
+        // serve auth0 facebook signin
+        /**
+         * @swagger
+         * paths:
+         *   /signin/facebook:
+         *     get:
+         *       tags:
+         *         - "auth0"
+         *       summary: Handle google sign in, by auth0
+         *       responses:
+         *         302:
+         *           description: Redirect to sign-in page by auth0
+         */
+         router.get('/signin/facebook', passport.authenticate('auth0', { connection: 'facebook' }), function (req, res) {
+            res.redirect(USER_HOME);
+        });
+
+        // serve auth0 callback
+        /**
+         * @swagger
+         * paths:
+         *   /callback:
+         *     get:
+         *       tags:
+         *         - "auth0"
+         *       summary: Handle callback status from auth0
+         *       responses:
+         *         302:
+         *           description: Redirect to dashboard
+         */
+        router.get('/callback', (req, res, next) => {
+            var auth0Callback = passport.authenticate('auth0', function auth0Verify(err, profile, info) {
+                if (err) {
+                    return next(err);
+                }
+                if (!profile) {
+                    return res.redirect(USER_HOME);
+                }
+                req.logIn(profile, async function (err) {
+                    if (err) {
+                        return next(err);
+                    }
+
+                    try {
+                        var oidc = req.user.oidc;
+                        if (oidc) {
+                            info.email = req.user.email;
+                            info.nickname = oidc.nickname;
+                            info.provider = oidc.provider;
+                        }
+                        var isRestored = false;
+                        var loginType = req.signedCookies.loginType;
+                        if (loginType && (LOCAL_LOGIN !== loginType)) {
+                            isRestored = true;
+                        }
+                        var signInSucceed;
+                        if (info.provider) {
+                            signInSucceed = await site.account.auth0SignIn(info.email, info.nickname);
+                            if (signInSucceed) {
+                                await site.account.updateSession(info.email, isRestored);
+                                return Site.signRestoreUser(res, info.email, info.provider).redirect(USER_HOME);
+                            }
+                        }
+                    } catch (errSignIn) {
+                        console.error(errSignIn);
+                    }
+                    req.logout();
+                    return res.redirect(USER_HOME);
+                });
+            });
+            auth0Callback(req, res, next);
         });
 
         // serve sign-up page
@@ -460,7 +566,12 @@ class Site {
 
         // set serializer / deserializer
         passport.serializeUser(async (user, done) => {
-            var userObject = { email: user };
+            var userObject;
+            if (user.oidc) {
+                userObject = { email: user.email, authProvider: user.oidc.provider };
+            } else {
+                userObject = { email: user };
+            }
             done(null, userObject);
         });
         passport.deserializeUser((user, done) => {
@@ -489,8 +600,26 @@ class Site {
             }
         });
 
+        // create Auth0Strategy
+        var auth0Strategy = new Auth0Strategy(config.auth0Options, async function (accessToken, refreshToken, extraParams, profile, done) {
+            var userObject;
+            try {
+                userObject = {
+                    oidc: profile,
+                    email: Site.getAuth0UserEmail(profile)
+                };
+                if (!userObject.email) {
+                    throw new Error('Invalid Auth0 Login');
+                }
+                done(null, userObject);
+            } catch (err) {
+                done(err);
+            }
+        });
+
         // apply strategies
         passport.use('db-auth', localStrategy);
+        passport.use('auth0', auth0Strategy);
     }
 
     /**
@@ -652,6 +781,29 @@ class Site {
             loginType = LOCAL_LOGIN;
         }
         return res.cookie('user', email, policy).cookie('loginType', loginType, policy).cookie('password', RESTORED_LOGIN, policy);
+    }
+
+    /**
+     * Get E-mail address assigned by Auth0Strategy
+     * 
+     * @param {Object} profile - Profile information from Auth0Strategy
+     * @return {string} The E-mail address if present
+     * @return undefined - otherwise
+     */
+    static getAuth0UserEmail(profile) {
+        var row;
+        if (profile) {
+            if (profile.emails && (1 === profile.emails.length)) {
+                row = profile.emails[0];
+                if (row) {
+                    return row.value;
+                }
+            }
+            if (profile._json && profile._json.email) {
+                return profile._json.email;
+            }
+        }
+        return undefined;
     }
 
     /**

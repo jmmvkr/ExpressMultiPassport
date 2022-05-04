@@ -219,6 +219,20 @@ class Account extends DbAccess {
     }
 
     /**
+     * Sign up a user that sign in by email & password
+     * 
+     * @param {string} email - Email address of user
+     * @param {string} password - Password from user
+     * @param {string} nickname - Initial nickname extracted from email
+     * @returns {number} - number of record inserted by this sign up operation (normally 0 if failed, and 1 if succeed)
+     * 
+     * @throws {Error} When given E-mail was already used in previous sign-up
+     */
+    async emailSignUp(email, password, nickname) {
+        return await this.commonSignUp(email, password, nickname, false);
+    }
+
+    /**
      * Sign in a user by email & password
      * 
      * @param {string} email - Email address of user 
@@ -238,17 +252,17 @@ class Account extends DbAccess {
     }
 
     /**
-     * Sign up a user that sign in by email & password
+     * Common operation flow of sign up a user account.
      * 
      * @param {string} email - Email address of user
-     * @param {string} password - Password from user
-     * @param {string} nickname - Initial nickname extracted from email
+     * @param {string} password - Raw password from user (use null when not required, e.g. sign up by social network)
+     * @param {string} nickname - Initial nickname derived from email or auth0 profile
+     * @param {boolean} verified - Initial email verified status (false for email sign-up, and true for social network)
      * @returns {number} - number of record inserted by this sign up operation (normally 0 if failed, and 1 if succeed)
      * 
      * @throws {Error} When given E-mail was already used in previous sign-up
      */
-    async emailSignUp(email, password, nickname) {
-        const verified = false;
+    async commonSignUp(email, password, nickname, verified) {
         const prisma = this.getDbClient();
         const oldUserList = await this.findUsersByEmail(email);
         if (DbAccess.hasData(oldUserList)) {
@@ -273,6 +287,22 @@ class Account extends DbAccess {
         };
         const result = await prisma.account.createMany({ data });
         return DbAccess.getUpdateCount(result);
+    }
+
+    /**
+     * Sign in a user from social network by auth0. Note that this operation will sign up new user when at the first time.
+     * 
+     * @param {string} email - Email address of user
+     * @param {string} nickname - Initial nickname from profile
+     * @returns {boolean} - true if sign in succeed
+     */
+     async auth0SignIn(email, nickname) {
+        var oldUserList = await this.findUsersByEmail(email);
+        if (!DbAccess.hasData(oldUserList)) {
+            await this.commonSignUp(email, null, nickname, true);
+            oldUserList = await this.findUsersByEmail(email);
+        }
+        return (1 === oldUserList.length);
     }
 
     /**

@@ -16,6 +16,11 @@ if ('development' === app.get('env')) {
 // prepare app config
 var config = {
     port: process.env.PORT || 9000,
+    serviceUri: process.env.SERVICE_BASE,
+    corsOptions: {
+        origin: 'https://' + process.env.AUTH0_DOMAIN,
+        optionsSuccessStatus: 200
+    },
     sessionOptions: {
         name: 'sess',
         secret: process.env.SESSION_SECRET,
@@ -25,6 +30,14 @@ var config = {
     },
     cookieOptions: {
         secret: process.env.COOKIE_SECRET
+    },
+    auth0Options: {
+        domain: process.env.AUTH0_DOMAIN,
+        clientID: process.env.AUTH0_CLIENT_ID,
+        clientSecret: process.env.AUTH0_CLIENT_SECRET,
+        callbackURL: process.env.SERVICE_BASE + '/callback',
+        auth0Logout: true,
+        scope: "openid email profile"
     },
     passportOptions: {
         usernameField: 'emailAddr',

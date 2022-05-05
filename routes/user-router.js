@@ -309,7 +309,7 @@ class UserRouter {
          *     post:
          *       summary: Send verification email for signed in user.
          *       tags:
-         *         - "user"
+         *         - "verify"
          *       responses:
          *         302:
          *           description: Always redirect to /signin.
@@ -332,7 +332,7 @@ class UserRouter {
          *       description: This verification API recognize a verify token as <strong>valid</strong> only when it matches 
          *                    the last generated verify token stored with given email address.
          *       tags:
-         *         - "user"
+         *         - "verify"
          *       parameters:
          *         - name: email
          *           in: path

@@ -51,9 +51,11 @@
 					<input type="submit" class="btn-round btn-signout" value="Logout" />
 				</form>
 			</div>
+<% if(!locals.authProvider) { %>
 			<div class="btn-right">
 				<input type="button" class="btn-round btn-change-password" value="Reset Password" onclick="showUiCell('#paneResetPassword',true)" />
 			</div>
+<% } %>
 			
 			<h3>Dashboard</h3>
 			<div class="gap"></div>

@@ -59,8 +59,10 @@ class UserRouter {
          */
         router.get('/dashboard', site.securePage, async function (req, res, next) {
             var email = '';
+            var authProvider = null;
             if (req.user) {
                 email = req.user.email;
+                authProvider = req.user.authProvider;
             }
 
             const userList = await account.findUsersByEmail(email);
@@ -73,7 +75,7 @@ class UserRouter {
                 id = user.id;
             }
 
-            res.render('dashboard.ejs', { id, isVerified });
+            res.render('dashboard.ejs', { id, isVerified, authProvider });
         });
 
         // serve user profile

@@ -71,8 +71,9 @@ class EmailSender {
      * @param {string} verifyCode - The verification code or token.
      */
     static sendVerificationEmail(email, verifyCode) {
+        const encodedEmail = encodeURIComponent(email);
         const verifyBase = EmailSender.status.verifyUrl;
-        const verifyLink = `${verifyBase}/${email}/${verifyCode}`;
+        const verifyLink = `${verifyBase}/${encodedEmail}/${verifyCode}`;
         const htmlContent = `Click <a href="${verifyLink}">HERE</a> to verify your E-mail.`;
         const msg = {
             to: email,

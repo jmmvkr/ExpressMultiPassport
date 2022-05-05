@@ -329,6 +329,8 @@ class UserRouter {
          *   /user/verify/{email}/{verifyToken}:
          *     get:
          *       summary: Verify email address of a user by verify token.
+         *       description: This verification API recognize a verify token as <strong>valid</strong> only when it matches 
+         *                    the last generated verify token stored with given email address.
          *       tags:
          *         - "user"
          *       parameters:
@@ -340,15 +342,15 @@ class UserRouter {
          *           description: Verify token from the link in sent verification email.
          *       responses:
          *         302:
-         *           description: Redirect to /signin if verify token is valid.
+         *           description: Redirect to /signin if verify token is <strong>valid</strong>.
          *         404:
-         *           description: Show Not Found to mislead attacker.
+         *           description: Show Not Found to mislead attacker when verify token is <strong>invalid</strong>.
          */
-         router.get('/verify/:email/:verifyToken', async function (req, res, next) {
+        router.get('/verify/:email/:verifyToken', async function (req, res, next) {
             const { email, verifyToken } = req.params;
             const decodedEmail = decodeURIComponent(email);
             const isValid = await account.verifyEmail(decodedEmail, verifyToken);
-            if(isValid) {
+            if (isValid) {
                 return res.redirect('/signin');
             } else {
                 res.status(404);

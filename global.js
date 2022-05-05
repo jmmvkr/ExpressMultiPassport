@@ -70,6 +70,28 @@ class Global { }
  */
 
 /**
+ * Email options to be used with EmailSender (send email by SendGrid)
+ * @typedef {Object} EmailOptions
+ * @property {string} apiKey - The API key from SendGrid.
+ * @property {string} senderEmail - The sender email registered in SendGrid.
+ * @property {string} [verifyUrl] - The verify URL of site when <strong>EmailSender.sendVerificationEmail()</strong> is used
+ * 
+ * @see util#EmailSender
+ */
+
+/**
+ * A structured email message object, that can be send to SendGrid.
+ * @typedef {Object} EmailMessage
+ * @property {string} from - The sender of an email.
+ * @property {string} to - The reciever of an email.
+ * @property {string} subject - The subject of an email.
+ * @property {string} text - The text content of an email.
+ * @property {string} html - The HTML content of an email.
+ * 
+ * @see util#EmailSender
+ */
+
+/**
  * A namespace for routes.
  * @namespace routes
  */

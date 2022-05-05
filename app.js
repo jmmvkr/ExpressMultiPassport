@@ -1,6 +1,7 @@
 const express = require('express');
 const ejs = require('ejs');
 const Site = require('./routes/site.js');
+const EmailSender = require('./util/email-sender.js');
 
 
 // init express app
@@ -43,7 +44,15 @@ var config = {
         usernameField: 'emailAddr',
         passwordField: 'password'
     },
-}
+    mailOptions: {
+        apiKey: process.env.SENDGRID_API_KEY,
+        senderEmail: process.env.SENDGRID_SENDER,
+        verifyUrl: process.env.SERVICE_BASE + '/user/verify'
+    }
+};
+
+// initialize EmailSender
+EmailSender.initialize(config.mailOptions);
 
 // initialize and use a Site
 const site = Site.makeOne(app, config);

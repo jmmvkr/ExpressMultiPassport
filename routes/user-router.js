@@ -301,6 +301,60 @@ class UserRouter {
             }
             return res.json({ id });
         });
+
+        /**
+         * @swagger
+         * paths:
+         *   /user/send-verify-email:
+         *     post:
+         *       summary: Send verification email for signed in user.
+         *       tags:
+         *         - "user"
+         *       responses:
+         *         302:
+         *           description: Always redirect to /signin.
+         */
+        router.post('/send-verify-email', async function (req, res, next) {
+            var email;
+            if (req.isAuthenticated() && req.user) {
+                email = req.user.email;
+                await account.sendVerificationEmail(email);
+            }
+            return res.redirect('/signin');
+        });
+
+        /**
+         * @swagger
+         * paths:
+         *   /user/verify/{email}/{verifyToken}:
+         *     get:
+         *       summary: Verify email address of a user by verify token.
+         *       tags:
+         *         - "user"
+         *       parameters:
+         *         - name: email
+         *           in: path
+         *           description: Email address of a user.
+         *         - name: verifyToken
+         *           in: path
+         *           description: Verify token from the link in sent verification email.
+         *       responses:
+         *         302:
+         *           description: Redirect to /signin if verify token is valid.
+         *         404:
+         *           description: Show Not Found to mislead attacker.
+         */
+         router.get('/verify/:email/:verifyToken', async function (req, res, next) {
+            const { email, verifyToken } = req.params;
+            const decodedEmail = decodeURIComponent(email);
+            const isValid = await account.verifyEmail(decodedEmail, verifyToken);
+            if(isValid) {
+                return res.redirect('/signin');
+            } else {
+                res.status(404);
+                return next();
+            }
+        });
     }
 
     /**

@@ -2,6 +2,7 @@ const crypto = require('crypto');
 
 const DbAccess = require('./db-access.js');
 const TimeUtil = require('../util/time-util.js');
+const EmailSender = require('../util/email-sender.js');
 
 // constants for hash function
 const SCRYPT_SALT_LENGTH = 64;
@@ -323,6 +324,92 @@ class Account extends DbAccess {
             }
         }
         return true;
+    }
+
+    /**
+     * Send verification E-mail with a link containing random generated verify token.
+     * @param {string} email - Email address of a user.
+     * 
+     * @see #updateVerifyToken
+     * @see #verifyEmail
+     */
+    async sendVerificationEmail(email) {
+        const verifyToken = await this.updateVerifyToken(email);
+        EmailSender.sendVerificationEmail(email, verifyToken);
+    }
+
+    /**
+     * Generate a verify token, and store in database with given user email.
+     * @param {string} email - Email address of a user.
+     * @returns {string} Non-empty verify token, if successfully update verify token for given user email.
+     * @returns Empty string, otherwise.
+     * 
+     * @see #sendVerificationEmail
+     */
+    async updateVerifyToken(email) {
+        var verifyToken = '';
+        var result;
+        var updateCount;
+        var tokenBuffer;
+        var prisma;
+        const oldUserList = await this.findUsersByEmail(email);
+        if (1 === oldUserList.length) {
+            // generate email verifyToken
+            tokenBuffer = Buffer.alloc(64);
+            crypto.randomFillSync(tokenBuffer);
+            verifyToken = tokenBuffer.toString('hex');
+
+            // update email verify_token in database
+            prisma = this.getDbClient();
+            result = await prisma.account.updateMany({
+                where: {
+                    email
+                },
+                data: {
+                    verify_token: verifyToken
+                }
+            });
+            updateCount = DbAccess.getUpdateCount(result);
+            if (1 === updateCount) {
+                return verifyToken;
+            }
+        }
+        return '';
+    }
+
+    /**
+     * Verify email address of a user by a link with verify token. If the verifyToken is not the same as latest verifyToken stored in database, verification fails.
+     * @param {string} email - Email address of a user.
+     * @param {string} verifyToken - The verify token generated when sending the verification E-mail.
+     * 
+     * @returns {boolean} - true if verification succeed.
+     * @returns false otherwise.
+     * 
+     * @see #sendVerificationEmail
+     */
+    async verifyEmail(email, verifyToken) {
+        var prisma = this.getDbClient();
+        var findResult = await prisma.account.findMany({
+            where: {
+                email,
+                verify_token: verifyToken
+            }
+        });
+        var updateResult;
+        var updateCount = 0;
+        if (DbAccess.hasData(findResult)) {
+            updateResult = await prisma.account.updateMany({
+                where: {
+                    email
+                },
+                data: {
+                    verified: true
+                }
+            });
+            updateCount = DbAccess.getUpdateCount(updateResult);
+            return (1 === updateCount);
+        }
+        return false;
     }
 
     /**

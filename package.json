@@ -19,6 +19,7 @@
   "homepage": "https://github.com/jmmvkr/ExpressMultiPassport#readme",
   "dependencies": {
     "@prisma/client": "^3.11.1",
+    "@sendgrid/mail": "^7.6.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "ejs": "^3.0.2",

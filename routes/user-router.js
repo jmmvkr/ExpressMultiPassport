@@ -159,10 +159,16 @@ class UserRouter {
          *           description: Show list of users
          *         401:
          *           description: Show Unauthorized if user not yet signed in
+         *         403:
+         *           description: Show Forbidden if user not yet verify email address
          */
         router.get('/list', site.secureApi, async function (req, res, next) {
+            const isVerified = await site.isSignInVerified(req);
+            if (!isVerified) {
+                return res.status(403).json({ message: 'Not verified' });
+            }
             const userList = await account.getUserList();
-            res.json(userList);
+            return res.json(userList);
         });
 
         // serve user statistics
@@ -179,10 +185,16 @@ class UserRouter {
          *           description: Show user statistics
          *         401:
          *           description: Show Unauthorized if user not yet signed in
+         *         403:
+         *           description: Show Forbidden if user not yet verify email address
          */
          router.get('/statistics', site.secureApi, async function (req, res, next) {
+            const isVerified = await site.isSignInVerified(req);
+            if (!isVerified) {
+                return res.status(403).json({ message: 'Not verified' });
+            }
             const userStatistics = await account.getUserStatistics();
-            res.json(userStatistics);
+            return res.json(userStatistics);
         });
 
         // serve reset password

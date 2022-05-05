@@ -157,6 +157,26 @@ class Site {
     }
 
     /**
+     * A site-level verify function to check the signed in user had email address verified or not.
+     * 
+     * @param {Request} req - The HTTP request
+     * @returns {boolean} - true if email address of signed in user is verified
+     */
+    async isSignInVerified(req) {
+        var userList;
+        var loginUser;
+        var isVerified = false;
+        if (req.user) {
+            userList = await this.account.findUsersByEmail(req.user.email);
+            if (1 === userList.length) {
+                loginUser = userList[0];
+                isVerified = loginUser.verified;
+            }
+        }
+        return isVerified;
+    }
+
+    /**
      * Add middlewares to express app.
      */
     addMiddlewares() {

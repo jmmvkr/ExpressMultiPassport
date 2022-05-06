@@ -1,4 +1,4 @@
-const sgMail = require('@sendgrid/mail');
+import sgMail from '@sendgrid/mail';
 
 /**
  * Utility class to send E-mail to end user by SendGrid.
@@ -88,4 +88,4 @@ class EmailSender {
 }
 
 
-module.exports = EmailSender;
+export { EmailSender };

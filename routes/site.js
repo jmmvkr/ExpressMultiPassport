@@ -1,16 +1,16 @@
-const express = require("express");
-const cors = require('cors');
-const session = require('express-session');
-const cookieParser = require('cookie-parser')
-const passport = require('passport');
-const LocalStrategy = require('passport-local');
-const Auth0Strategy = require('passport-auth0');
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+import express from "express";
+import cors from 'cors';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import passport from 'passport';
+import LocalStrategy from 'passport-local';
+import Auth0Strategy from 'passport-auth0';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
-const Account = require("../dal/account.js");
-const PasswordChecker = require('../util/password-checker.js');
-const UserRouter = require("./user-router.js");
+import { Account } from '../dal/account.js';
+import { PasswordChecker } from '../util/password-checker.js';
+import { UserRouter } from './user-router.js';
 
 
 // site specific constants
@@ -843,4 +843,4 @@ class Site {
 }
 
 
-module.exports = Site;
+export { Site };

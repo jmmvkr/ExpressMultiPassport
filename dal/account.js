@@ -1,8 +1,8 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
-const DbAccess = require('./db-access.js');
-const TimeUtil = require('../util/time-util.js');
-const EmailSender = require('../util/email-sender.js');
+import { DbAccess } from './db-access.js';
+import { TimeUtil } from '../util/time-util.js';
+import { EmailSender } from '../util/email-sender.js';
 
 // constants for hash function
 const SCRYPT_SALT_LENGTH = 64;
@@ -462,4 +462,4 @@ class Account extends DbAccess {
 
 }
 
-module.exports = Account;
+export { Account };

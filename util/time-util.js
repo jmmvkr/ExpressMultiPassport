@@ -35,4 +35,4 @@ class TimeUtil {
 }
 
 
-module.exports = TimeUtil;
+export { TimeUtil };

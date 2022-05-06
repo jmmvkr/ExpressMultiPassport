@@ -1,4 +1,4 @@
-const client_1 = require('@prisma/client');
+import client_1 from '@prisma/client';
 
 
 /**
@@ -90,4 +90,4 @@ const global = {
 };
 
 
-module.exports = DbAccess;
+export { DbAccess };

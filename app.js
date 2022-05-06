@@ -1,7 +1,8 @@
-const express = require('express');
-const ejs = require('ejs');
-const Site = require('./routes/site.js');
-const EmailSender = require('./util/email-sender.js');
+import express from 'express';
+import ejs from 'ejs';
+import { Site } from './routes/site.js';
+import { EmailSender } from './util/email-sender.js';
+import dotenv from 'dotenv';
 
 
 // init express app
@@ -11,7 +12,7 @@ app.engine('ejs', ejs.renderFile);
 // enable development config
 if ('development' === app.get('env')) {
     console.warn(' # dev-config applied');
-    require("dotenv").config();
+    dotenv.config();
 }
 
 // prepare app config

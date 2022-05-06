@@ -217,4 +217,4 @@ static runSample() {
 
 } // end - class
 
-module.exports = PasswordChecker;
+export { PasswordChecker };

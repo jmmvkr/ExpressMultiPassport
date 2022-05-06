@@ -8,7 +8,7 @@ import sgMail from '@sendgrid/mail';
  * @tutorial [Usage]
  * <pre>
  * <code class='prettyprint'>
- * const EmailSender = require('./util/email-sender.js');
+ * import { EmailSender } from './util/email-sender.js';
  * 
  * // config for EmailSender
  * const config = {

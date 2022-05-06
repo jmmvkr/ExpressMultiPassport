@@ -44,8 +44,8 @@ const RESTORE_COOKIE_POLICY = {
  * @tutorial [Usage]
  * <pre>
  * <code class='prettyprint'>
- * const express = require("express");
- * const Site = require('./routes/site.js');
+ * import express from 'express';
+ * import { Site } from './routes/site.js';
  * 
  * // init express app
  * const app = express();

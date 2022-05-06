@@ -8,8 +8,8 @@ import express from 'express';
  * @tutorial [Usage]
  * <pre>
  * <code class='prettyprint'>
- * const express = require("express");
- * const UserRouter = require("./user-router.js");
+ * import express from 'express';
+ * import { UserRouter } from './user-router.js';
  * 
  * // in Site.addRoutes() or SomeRouter.addRoutes()
  * const router = this.router;

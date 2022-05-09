@@ -95,8 +95,10 @@ class UserRouter {
          */
          router.get('/profile', site.securePage, async function (req, res, next) {
             var email = '';
+            var authProvider = null;
             if (req.user) {
                 email = req.user.email;
+                authProvider = req.user.authProvider;
             }
             const userList = await account.findUsersByEmail(email);
             var user;
@@ -105,7 +107,7 @@ class UserRouter {
                 user = userList[0];
                 nickname = user.nickname;
             }
-            res.render('profile.ejs', { nickname, email });
+            res.render('profile.ejs', { nickname, email, authProvider });
         });
 
         // change nickname in user profile

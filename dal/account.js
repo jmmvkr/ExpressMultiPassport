@@ -245,12 +245,14 @@ class Account extends DbAccess {
      */
     async emailSignIn(email, password) {
         const oldUserList = await this.findUsersByEmail(email);
-        var row;
+        var user;
         var isValidHash;
         if (1 === oldUserList.length) {
-            row = oldUserList[0];
-            isValidHash = Account.checkHash(password, row.password);
-            return isValidHash;
+            user = oldUserList[0];
+            if (AuthorizationProvider.AUTH_PASSWORD === user.provider_code) {
+                isValidHash = Account.checkHash(password, user.password);
+                return isValidHash;
+            }
         }
         return false;
     }
@@ -307,11 +309,18 @@ class Account extends DbAccess {
      async auth0SignIn(email, nickname, authProvider) {
         const providerCode = AuthorizationParser.parse(authProvider);
         var oldUserList = await this.findUsersByEmail(email);
+        var user;
         if (!DbAccess.hasData(oldUserList)) {
             await this.commonSignUp(email, null, nickname, true, providerCode);
             oldUserList = await this.findUsersByEmail(email);
         }
-        return (1 === oldUserList.length);
+        if(1 === oldUserList.length) {
+            user = oldUserList[0];
+            if(providerCode === user.provider_code) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -397,6 +397,8 @@ class Site {
                                 await site.account.updateSession(info.email, isRestored);
                                 return Site.signRestoreUser(res, info.email, info.provider).redirect(USER_HOME);
                             }
+                            req.logout();
+                            return site.renderSignIn(req, res, { message: 'Invalid login from social network' });
                         }
                     } catch (errSignIn) {
                         console.error(errSignIn);

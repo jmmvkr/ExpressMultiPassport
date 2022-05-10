@@ -310,19 +310,37 @@ class UserRouter {
          *   /user/send-verify-email:
          *     post:
          *       summary: Send verification email for signed in user.
+         *       description: Send verification email for signed in user. If previous 
+         *                verification email is still valid, this operation will 
+         *                fail with status code 412 - 'Precondition Failed'.
          *       tags:
          *         - "verify"
          *       responses:
-         *         302:
-         *           description: Always redirect to /signin.
+         *         200:
+         *           description: Show OK when a new verification email was sent.
+         *         401:
+         *           description: Show Unauthorized when user is not yet signed in.
+         *         412:
+         *           description: Show Precondition Failed when the previous verification email is still valid.
          */
         router.post('/send-verify-email', async function (req, res, next) {
             var email;
-            if (req.isAuthenticated() && req.user) {
-                email = req.user.email;
-                await account.sendVerificationEmail(email);
+            var messageObject = { message: 'Unauthorized' };
+            try {
+                if (req.isAuthenticated() && req.user) {
+                    email = req.user.email;
+                    await account.sendVerificationEmail(email);
+                    // report OK
+                    messageObject.message = 'OK';
+                    return res.json(messageObject);
+                }
+            } catch (err) {
+                // report error, with HTTP 412 - Precondition Failed
+                messageObject.message = err.message;
+                return res.status(412).json(messageObject);
             }
-            return res.redirect('/signin');
+            // report Unauthorized
+            return res.status(401).json(messageObject);
         });
 
         /**

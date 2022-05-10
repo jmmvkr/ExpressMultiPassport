@@ -334,8 +334,21 @@ class Account extends DbAccess {
      * @see #verifyEmail
      */
     async sendVerificationEmail(email) {
-        const verifyToken = await this.updateVerifyToken(email);
-        EmailSender.sendVerificationEmail(email, verifyToken);
+        const oldUserList = await this.findUsersByEmail(email);
+        var user;
+        var verifyToken;
+        var prisma;
+        var now;
+        if (1 === oldUserList.length) {
+            user = oldUserList[0];
+            prisma = this.getDbClient();
+            now = await DbAccess.getDbNow(prisma);
+            if(user.verify_deadline && (now <= user.verify_deadline)) {
+                throw new Error('Please check previous verification e-mail, it\'s still valid');
+            }
+            verifyToken = await this.updateVerifyToken(email);
+            EmailSender.sendVerificationEmail(email, verifyToken);
+        }
     }
 
     /**
@@ -352,6 +365,7 @@ class Account extends DbAccess {
         var updateCount;
         var tokenBuffer;
         var prisma;
+        var now;
         const oldUserList = await this.findUsersByEmail(email);
         if (1 === oldUserList.length) {
             // generate email verifyToken
@@ -361,12 +375,14 @@ class Account extends DbAccess {
 
             // update email verify_token in database
             prisma = this.getDbClient();
+            now = await DbAccess.getDbNow(prisma);
             result = await prisma.account.updateMany({
                 where: {
                     email
                 },
                 data: {
-                    verify_token: verifyToken
+                    verify_token: verifyToken, 
+                    verify_deadline: TimeUtil.addMinutes(now, 5)
                 }
             });
             updateCount = DbAccess.getUpdateCount(result);

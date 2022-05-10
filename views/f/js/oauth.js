@@ -177,7 +177,7 @@ function postJson(uri, obj, cbText) {
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
-            cbText(xhr.responseText);
+            cbText(xhr.responseText, xhr);
         }
     }
     xhr.send(JSON.stringify(obj));
@@ -188,7 +188,7 @@ function getJson(uri, cbText) {
     xhr.open("GET", uri);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
-            cbText(xhr.responseText);
+            cbText(xhr.responseText, xhr);
         }
     }
     xhr.send(null);
@@ -224,6 +224,25 @@ function updatePassword() {
         }
         if (result.information) {
             return displayInformation(result.information);
+        }
+    });
+    return false;
+}
+
+function sendVerifyEmail(ele) {
+    postJson(ele.action, {}, (text, xhr) => {
+        const statusCode = xhr.status;
+        var targetUi;
+        if (412 === statusCode) {
+            targetUi = ele.querySelector('.alert-warning');
+            return showUiCell(targetUi, true);
+        }
+        if (200 === statusCode) {
+            targetUi = ele.querySelector('.alert-success');
+            return showUiCell(targetUi, true);
+        }
+        if (401 === statusCode) {
+            return window.location.reload();
         }
     });
     return false;

@@ -124,9 +124,14 @@
 			</div>
 
 			<hr />
-			<form action="/user/send-verify-email" method="POST" >
-			In order to use Dashboard, you must verify your e-mail.<br /><br />
-			Press &nbsp;<input type="submit" value="Resend Email Verification" />&nbsp; if miss the previous verification mail.
+			<form action="/user/send-verify-email" method="POST" onsubmit="return sendVerifyEmail(this)">
+				In order to use Dashboard, you must verify your e-mail.<br /><br />
+				Press &nbsp;<input type="submit" value="Resend Email Verification" />&nbsp; if miss the previous verification mail.
+			
+				<div class="login-item login-error alert alert-success box-hidden">Verification E-mail was sent</div>
+				<div class="login-item login-error alert alert-warning box-hidden">Please check previous verification e-mail, it's
+					valid in 5 minutes since when it was sent.
+				</div>
 			</form>
 <% } %>
 			

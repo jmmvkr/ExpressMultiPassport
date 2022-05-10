@@ -20,4 +20,5 @@ model account {
   login_count Int
   session_count Int
   verify_token String?
+  verify_deadline DateTime?
 }

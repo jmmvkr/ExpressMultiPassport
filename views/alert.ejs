@@ -42,31 +42,31 @@
 
 
 <div class="container page-layout">
-	<div class="row login-block">
-	</div>
+    <div class="row login-block">
+    </div>
 </div>
 
 <div class="overlay">
     <div class="container page-layout">
-		<div class="col-sm-2"></div>
-		<div class="col-sm-8 card-like login-block">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8 card-like login-block">
 <% if(locals.title) { %>
-			<h3><%= title %></h3>
+            <h3><%= title %></h3>
 <% } else { %>
-			<h3>Error</h3>
+            <h3>Error</h3>
 <% } %>
 <% if(locals.message) { %>
-			<div class="login-item login-error alert alert-danger">
-				<%= message %>
-			</div>
+            <div class="login-item login-error alert alert-danger">
+                <%= message %>
+            </div>
 <% } %>
 <% if(locals.returnTo) { %>
-	<form method="GET" action="<%= returnTo %>">
-		<input type="submit" class="btn-round btn-spaced btn-login" value="OK" />
-	</div>
+            <form method="GET" action="<%= returnTo %>">
+                <input type="submit" class="btn-round btn-spaced btn-login" value="OK" />
+            </form>
 <% } %>
-</div>
-		<div class="col-sm-2"></div>
+        </div>
+        <div class="col-sm-2"></div>
     </div>
 </div>
 

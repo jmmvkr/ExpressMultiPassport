@@ -105,3 +105,30 @@ class Global { }
  * A namespace for utility classes.
  * @namespace util
  */
+
+
+/**
+ * An ExpireError indicates that an operation failed to meet given deadline. As a result, operation failed.
+ */
+class ExpireError extends Error {
+
+    /**
+     * Create an ExpireError with given information.
+     * 
+     * @param {string} message The message describing why an operation fails.
+     * @param {Date} now - The start time of an operation.
+     * @param {Date} deadline - The deadline that an operation failed to meet.
+     */
+    constructor(message, now, deadline) {
+        super(message);
+
+        /** The start time of an operation. */
+        this.now = now;
+
+        /** The deadline that an operation failed to meet. */
+        this.deadline = deadline;
+    }
+
+}
+
+export { ExpireError };

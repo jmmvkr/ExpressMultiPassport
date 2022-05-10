@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { DbAccess } from './db-access.js';
 import { TimeUtil } from '../util/time-util.js';
 import { EmailSender } from '../util/email-sender.js';
+import { ExpireError } from '../global.js';
 
 // constants for hash function
 const SCRYPT_SALT_LENGTH = 64;
@@ -332,6 +333,7 @@ class Account extends DbAccess {
      * 
      * @see #updateVerifyToken
      * @see #verifyEmail
+     * @throws {Error} Error when previous verification e-mail is still valid.
      */
     async sendVerificationEmail(email) {
         const oldUserList = await this.findUsersByEmail(email);
@@ -402,6 +404,7 @@ class Account extends DbAccess {
      * @returns false otherwise.
      * 
      * @see #sendVerificationEmail
+     * @throws {ExpireError} ExpireError when verifyToken expired.
      */
     async verifyEmail(email, verifyToken) {
         var prisma = this.getDbClient();
@@ -413,7 +416,14 @@ class Account extends DbAccess {
         });
         var updateResult;
         var updateCount = 0;
+        var user;
+        var now;
         if (DbAccess.hasData(findResult)) {
+            user = findResult[0];
+            now = await DbAccess.getDbNow(prisma);
+            if(now > user.verify_deadline) {
+                throw new ExpireError('Expired verify token', now, user.verify_deadline);
+            }
             updateResult = await prisma.account.updateMany({
                 where: {
                     email

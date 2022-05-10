@@ -392,7 +392,7 @@ class Site {
                         }
                         var signInSucceed;
                         if (info.provider) {
-                            signInSucceed = await site.account.auth0SignIn(info.email, info.nickname);
+                            signInSucceed = await site.account.auth0SignIn(info.email, info.nickname, info.provider);
                             if (signInSucceed) {
                                 await site.account.updateSession(info.email, isRestored);
                                 return Site.signRestoreUser(res, info.email, info.provider).redirect(USER_HOME);

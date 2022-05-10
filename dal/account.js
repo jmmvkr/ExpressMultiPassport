@@ -3,7 +3,9 @@ import crypto from 'crypto';
 import { DbAccess } from './db-access.js';
 import { TimeUtil } from '../util/time-util.js';
 import { EmailSender } from '../util/email-sender.js';
+import { AuthorizationParser, AuthorizationProvider } from '../util/authorization-parser.js';
 import { ExpireError } from '../global.js';
+
 
 // constants for hash function
 const SCRYPT_SALT_LENGTH = 64;
@@ -231,7 +233,7 @@ class Account extends DbAccess {
      * @throws {Error} When given E-mail was already used in previous sign-up
      */
     async emailSignUp(email, password, nickname) {
-        return await this.commonSignUp(email, password, nickname, false);
+        return await this.commonSignUp(email, password, nickname, false, AuthorizationProvider.AUTH_PASSWORD);
     }
 
     /**
@@ -253,6 +255,7 @@ class Account extends DbAccess {
         return false;
     }
 
+    
     /**
      * Common operation flow of sign up a user account.
      * 
@@ -260,11 +263,12 @@ class Account extends DbAccess {
      * @param {string} password - Raw password from user (use null when not required, e.g. sign up by social network)
      * @param {string} nickname - Initial nickname derived from email or auth0 profile
      * @param {boolean} verified - Initial email verified status (false for email sign-up, and true for social network)
+     * @param {number} providerCode - Authorization provider in numeric form.
      * @returns {number} - number of record inserted by this sign up operation (normally 0 if failed, and 1 if succeed)
      * 
      * @throws {Error} When given E-mail was already used in previous sign-up
      */
-    async commonSignUp(email, password, nickname, verified) {
+    async commonSignUp(email, password, nickname, verified, providerCode) {
         const prisma = this.getDbClient();
         const oldUserList = await this.findUsersByEmail(email);
         if (DbAccess.hasData(oldUserList)) {
@@ -285,7 +289,8 @@ class Account extends DbAccess {
             login_count: 0,
             session_count: 0,
             session: null,
-            verified
+            verified, 
+            provider_code: providerCode
         };
         const result = await prisma.account.createMany({ data });
         return DbAccess.getUpdateCount(result);
@@ -296,12 +301,14 @@ class Account extends DbAccess {
      * 
      * @param {string} email - Email address of user
      * @param {string} nickname - Initial nickname from profile
+     * @param {string} authProvider - Authorization provider in string form.
      * @returns {boolean} - true if sign in succeed
      */
-     async auth0SignIn(email, nickname) {
+     async auth0SignIn(email, nickname, authProvider) {
+        const providerCode = AuthorizationParser.parse(authProvider);
         var oldUserList = await this.findUsersByEmail(email);
         if (!DbAccess.hasData(oldUserList)) {
-            await this.commonSignUp(email, null, nickname, true);
+            await this.commonSignUp(email, null, nickname, true, providerCode);
             oldUserList = await this.findUsersByEmail(email);
         }
         return (1 === oldUserList.length);

@@ -21,4 +21,5 @@ model account {
   session_count Int
   verify_token String?
   verify_deadline DateTime?
+  provider_code Int
 }

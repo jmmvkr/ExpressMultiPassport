@@ -1,6 +1,7 @@
 /**
  * Enum of authorization provider support.
  * @enum {AuthorizationProvider}
+ * @see util#AuthorizationParser
  */
 const AuthorizationProvider = {
 
@@ -20,6 +21,8 @@ const AuthorizationProvider = {
 
 /**
  * Helper class for Account to parse given authorization provider into numeric code.
+ * @memberof util#
+ * 
  * @hideconstructor
  * @see dal#Account
  * @see AuthorizationProvider

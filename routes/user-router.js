@@ -362,11 +362,13 @@ class UserRouter {
          *           description: Verify token from the link in sent verification email.
          *       responses:
          *         200:
-         *           description: Show error message when verify token expired.
+         *           description: Show sign-in page if client shows only the redirected page with 200 OK
          *         302:
-         *           description: Redirect to /signin if verify token is <strong>valid</strong>.
+         *           description: Redirect to sign-in page /signin if verify token is <strong>valid</strong>.
          *         404:
          *           description: Show Not Found to mislead attacker when verify token is <strong>invalid</strong>.
+         *         412:
+         *           description: Show error message when verify token expired.
          */
         router.get('/verify/:email/:verifyToken', async function (req, res, next) {
             const { email, verifyToken } = req.params;
@@ -375,7 +377,7 @@ class UserRouter {
             try {
                 isValid = await account.verifyEmail(decodedEmail, verifyToken);
             } catch (err) {
-                return res.render('alert.ejs', { title: 'E-mail Verification', message: err.message, returnTo: '/signin' });
+                return res.status(412).render('alert.ejs', { title: 'E-mail Verification', message: err.message, returnTo: '/signin' });
             }
             if (isValid) {
                 return res.redirect('/signin');
